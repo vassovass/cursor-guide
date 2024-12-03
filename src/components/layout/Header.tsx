@@ -1,11 +1,24 @@
 import { Button } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import { Github, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sidebar } from "./Sidebar";
 
 export function Header() {
   return (
-    <header className="h-16 border-b border-gray-200 fixed top-0 right-0 left-64 bg-white z-10">
+    <header className="h-16 border-b border-gray-200 fixed top-0 right-0 left-0 lg:left-64 bg-white z-10">
       <div className="h-full flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-64">
+              <Sidebar />
+            </SheetContent>
+          </Sheet>
           <input
             type="search"
             placeholder="Search documentation..."

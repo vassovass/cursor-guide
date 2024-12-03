@@ -10,8 +10,10 @@ export function Layout() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex">
-        <Sidebar />
+      <div className="flex pt-16">
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
         <main className="flex-1 p-6">
           <Routes>
             <Route path="/" element={<SetupPage />} />
