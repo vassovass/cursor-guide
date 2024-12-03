@@ -1,28 +1,31 @@
 import { Button } from "@/components/ui/button";
-import { Github, Menu, ToggleRight } from "lucide-react";
+import { Github, Menu, Moon, Sun, ToggleRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "./Sidebar";
 import { Toggle } from "@/components/ui/toggle";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/hooks/use-theme";
+import { RoadmapMenu } from "./RoadmapMenu";
 
 export function Header() {
-  const [devMode, setDevMode] = useState(() => {
-    const saved = localStorage.getItem("devMode");
+  const [debugMode, setDebugMode] = useState(() => {
+    const saved = localStorage.getItem("debugMode");
     return saved ? JSON.parse(saved) : false;
   });
 
+  const { theme, setTheme } = useTheme();
+
   useEffect(() => {
-    localStorage.setItem("devMode", JSON.stringify(devMode));
-    // Add or remove a class to the document body for global styling
-    if (devMode) {
-      document.body.classList.add("dev-mode");
+    localStorage.setItem("debugMode", JSON.stringify(debugMode));
+    if (debugMode) {
+      document.body.classList.add("debug-mode");
     } else {
-      document.body.classList.remove("dev-mode");
+      document.body.classList.remove("debug-mode");
     }
-  }, [devMode]);
+  }, [debugMode]);
 
   return (
-    <header className="h-16 border-b border-gray-200 fixed top-0 right-0 left-0 lg:left-64 bg-white z-10">
+    <header className="h-16 border-b border-gray-200 fixed top-0 right-0 left-0 lg:left-64 bg-background z-10">
       <div className="h-full flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <Sheet>
@@ -33,7 +36,7 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
-              <Sidebar />
+              <Sidebar debugMode={debugMode} />
             </SheetContent>
           </Sheet>
           <input
@@ -41,16 +44,33 @@ export function Header() {
             placeholder="Search documentation..."
             className="w-64 px-4 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
+          {debugMode && <RoadmapMenu />}
         </div>
         <div className="flex items-center gap-4">
           <Toggle
-            pressed={devMode}
-            onPressedChange={setDevMode}
-            aria-label="Toggle developer mode"
+            pressed={debugMode}
+            onPressedChange={setDebugMode}
+            aria-label="Toggle debug/developer mode"
+            title="Debug/Developer Mode"
+            className="relative group"
+          >
+            <ToggleRight className={`h-4 w-4 transition-colors ${debugMode ? 'text-primary' : ''}`} />
+            <span className="sr-only">Debug Mode</span>
+            <span className="absolute hidden group-hover:block bg-black text-white text-xs px-2 py-1 rounded -bottom-8 whitespace-nowrap">
+              Debug/Developer Mode
+            </span>
+          </Toggle>
+          <Toggle
+            pressed={theme === "dark"}
+            onPressedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
             className="gap-2"
           >
-            <ToggleRight className="h-4 w-4" />
-            <span className="hidden sm:inline">Developer Mode</span>
+            {theme === "dark" ? (
+              <Moon className="h-4 w-4" />
+            ) : (
+              <Sun className="h-4 w-4" />
+            )}
           </Toggle>
           <Button variant="outline" size="sm" className="gap-2">
             <Github className="w-4 h-4" />

@@ -2,12 +2,23 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export function Sidebar() {
+interface SidebarProps {
+  debugMode?: boolean;
+}
+
+export function Sidebar({ debugMode = false }: SidebarProps) {
   const routes = [
     { path: '/', label: 'Setup' },
     { path: '/docs', label: 'Documentation' },
     { path: '/best-practices', label: 'Best Practices' },
     { path: '/model-config', label: 'Model Configuration' },
+    ...(debugMode ? [
+      { path: '/roadmap/sprint-1', label: 'Sprint 1: Foundation' },
+      { path: '/roadmap/sprint-2', label: 'Sprint 2: Documentation' },
+      { path: '/roadmap/sprint-3', label: 'Sprint 3: Setup' },
+      { path: '/roadmap/sprint-4', label: 'Sprint 4: AI Configuration' },
+      { path: '/roadmap/sprint-5', label: 'Sprint 5: Launch' },
+    ] : []),
   ];
 
   return (
