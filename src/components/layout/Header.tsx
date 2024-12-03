@@ -42,7 +42,7 @@ export function Header() {
           <input
             type="search"
             placeholder="Search documentation..."
-            className="w-64 px-4 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-64 px-4 py-2 rounded-md border border-gray-200 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400"
           />
           {debugMode && <RoadmapMenu />}
         </div>
