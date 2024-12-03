@@ -3,19 +3,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
-import { ModelList } from './ModelList';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { fetchAvailableModels, groupModelsByCapability, fetchUserModelConfigs } from '@/utils/model-utils';
 import { CAPABILITY_LABELS } from '@/types/ai-models';
+import { ModelList } from './ModelList';
 
 export function ApiKeyManager() {
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [isSyncing, setIsSyncing] = useState(false);
   const { toast } = useToast();
 
-  const { data: availableModels, isError: isModelsError, refetch: refetchModels } = useQuery({
+  const { data: availableModels, isError: isModelsError, isLoading: isModelsLoading, refetch: refetchModels } = useQuery({
     queryKey: ['available-models'],
     queryFn: fetchAvailableModels,
   });
@@ -56,6 +57,16 @@ export function ApiKeyManager() {
     setShowKeys(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  if (isModelsLoading) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="p-6">
+          <div className="text-muted-foreground">Loading available AI models...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (isModelsError) {
     return (
       <Card className="w-full max-w-2xl mx-auto">
@@ -73,7 +84,7 @@ export function ApiKeyManager() {
     <Card className="w-full max-w-2xl mx-auto bg-card border-border" data-testid="api-key-manager">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-foreground">AI Model API Keys</CardTitle>
+          <CardTitle className="text-foreground">AI Model Configuration</CardTitle>
           <CardDescription className="text-muted-foreground">
             Configure your API keys for different AI capabilities
           </CardDescription>
@@ -90,6 +101,12 @@ export function ApiKeyManager() {
         </Button>
       </CardHeader>
       <CardContent>
+        <Alert className="mb-6">
+          <AlertDescription>
+            To use AI models, you'll need to provide API keys for each provider. These keys are stored securely and can be updated at any time.
+          </AlertDescription>
+        </Alert>
+
         {capabilities.length > 0 ? (
           <Tabs defaultValue={capabilities[0]} className="space-y-4">
             <TabsList className="w-full h-auto flex-wrap gap-2">
@@ -105,14 +122,15 @@ export function ApiKeyManager() {
             </TabsList>
 
             {capabilities.map(capability => (
-              <ModelList
-                key={capability}
-                models={groupedModels[capability]}
-                capability={capability}
-                showKeys={showKeys}
-                onToggleVisibility={toggleKeyVisibility}
-                userConfigs={userConfigs}
-              />
+              <TabsContent key={capability} value={capability}>
+                <ModelList
+                  models={groupedModels[capability]}
+                  capability={capability}
+                  showKeys={showKeys}
+                  onToggleVisibility={toggleKeyVisibility}
+                  userConfigs={userConfigs}
+                />
+              </TabsContent>
             ))}
           </Tabs>
         ) : (

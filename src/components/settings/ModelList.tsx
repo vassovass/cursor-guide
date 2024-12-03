@@ -1,6 +1,7 @@
 import { AiModel } from '@/types/ai-models';
 import { ModelKeyInput } from './ModelKeyInput';
 import { TabsContent } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ModelListProps {
   models: AiModel[];
@@ -17,8 +18,20 @@ export function ModelList({
   onToggleVisibility,
   userConfigs 
 }: ModelListProps) {
+  if (!models || models.length === 0) {
+    return (
+      <TabsContent value={capability}>
+        <Alert>
+          <AlertDescription>
+            No models available for {capability}. Try syncing to fetch the latest models.
+          </AlertDescription>
+        </Alert>
+      </TabsContent>
+    );
+  }
+
   return (
-    <TabsContent key={capability} value={capability} className="space-y-4">
+    <TabsContent value={capability} className="space-y-4">
       {models.map((model) => {
         const existingConfig = userConfigs?.find(
           config => config.model_id === model.model_id
