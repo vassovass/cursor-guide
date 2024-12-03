@@ -8,6 +8,7 @@ import { BestPracticesPage } from '@/pages/BestPracticesPage';
 import { ModelConfigPage } from '@/pages/ModelConfigPage';
 import { RoadmapPage } from '@/pages/RoadmapPage';
 import { MetricsPage } from '@/pages/MetricsPage';
+import { SprintPage } from '@/pages/SprintPage';
 import { useState, useEffect } from 'react';
 
 export function Layout() {
@@ -36,17 +37,9 @@ export function Layout() {
             <Route path="/docs" element={<DocumentationPage />} />
             <Route path="/best-practices" element={<BestPracticesPage />} />
             <Route path="/model-config" element={<ModelConfigPage />} />
-            {debugMode && (
-              <>
-                <Route path="/roadmap" element={<RoadmapPage />} />
-                <Route path="/metrics" element={<MetricsPage />} />
-                <Route path="/roadmap/sprint-1" element={<div>Sprint 1 Content</div>} />
-                <Route path="/roadmap/sprint-2" element={<div>Sprint 2 Content</div>} />
-                <Route path="/roadmap/sprint-3" element={<div>Sprint 3 Content</div>} />
-                <Route path="/roadmap/sprint-4" element={<div>Sprint 4 Content</div>} />
-                <Route path="/roadmap/sprint-5" element={<div>Sprint 5 Content</div>} />
-              </>
-            )}
+            <Route path="/roadmap" element={<RoadmapPage />} />
+            <Route path="/metrics" element={<MetricsPage />} />
+            <Route path="/roadmap/sprint-:sprintNumber" element={<SprintPage />} />
           </Routes>
         </main>
       </div>
