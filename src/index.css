@@ -98,4 +98,14 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Developer mode styles */
+  body.dev-mode {
+    @apply relative;
+  }
+
+  .dev-mode [class*="grid"],
+  .dev-mode [class*="flex"] {
+    @apply ring-1 ring-primary/10 ring-inset;
+  }
 }
