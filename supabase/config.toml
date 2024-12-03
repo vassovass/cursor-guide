@@ -25,3 +25,7 @@ enabled = true
 [[functions]]
 name = "sync-ai-models"
 verify_jwt = true
+
+[[functions]]
+name = "ai-suite-process"
+verify_jwt = true

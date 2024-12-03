@@ -155,6 +155,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_model_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          model_id: string
+          provider: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          model_id: string
+          provider: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          model_id?: string
+          provider?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

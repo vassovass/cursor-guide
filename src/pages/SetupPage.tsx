@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAvailableModels, groupModelsByCapability } from "@/utils/model-utils";
 import { ApiKeyManager } from "@/components/settings/ApiKeyManager";
+import { AiTester } from "@/components/ai/AiTester";
 
 export function SetupPage() {
   const { data: models, isLoading } = useQuery({
@@ -24,6 +25,7 @@ export function SetupPage() {
           <TabsTrigger value="spec">Project Specification</TabsTrigger>
           <TabsTrigger value="models">AI Model Configuration</TabsTrigger>
           <TabsTrigger value="setup">Environment Setup</TabsTrigger>
+          <TabsTrigger value="test">AI Testing</TabsTrigger>
         </TabsList>
 
         <TabsContent value="spec">
@@ -137,6 +139,10 @@ export function SetupPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="test">
+          <AiTester />
         </TabsContent>
       </Tabs>
     </div>
