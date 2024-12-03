@@ -3,13 +3,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAvailableModels, groupModelsByCapability } from "@/utils/model-utils";
+import { ApiKeyManager } from "@/components/settings/ApiKeyManager";
 
 export function SetupPage() {
+  const { data: models, isLoading } = useQuery({
+    queryKey: ['available-models'],
+    queryFn: fetchAvailableModels,
+  });
+
+  const groupedModels = groupModelsByCapability(models);
+
   return (
-    <div className="container mx-auto space-y-6">
+    <div className="container mx-auto space-y-6 py-8">
       <h1 className="text-3xl font-bold">Project Setup Guide</h1>
       
-      <Tabs defaultValue="spec" className="space-y-4">
+      <Tabs defaultValue="models" className="space-y-4">
         <TabsList>
           <TabsTrigger value="spec">Project Specification</TabsTrigger>
           <TabsTrigger value="models">AI Model Configuration</TabsTrigger>
@@ -39,49 +49,67 @@ export function SetupPage() {
           <Card>
             <CardHeader>
               <CardTitle>AI Model Configuration</CardTitle>
-              <CardDescription>Configure AI models for different aspects of your project</CardDescription>
+              <CardDescription>Configure AI models and API keys for different capabilities</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Text Processing Model</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select text model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gpt4">GPT-4</SelectItem>
-                      <SelectItem value="gpt4-preview">GPT-4 Preview</SelectItem>
-                      <SelectItem value="claude">Claude 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {isLoading ? (
+                  <div>Loading available models...</div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Text Processing Model</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select text model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {groupedModels['text-generation']?.map((model) => (
+                            <SelectItem key={model.model_id} value={model.model_id}>
+                              {model.model_name} ({model.provider})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Multimodal Processing</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select multimodal model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="claude">Claude 3</SelectItem>
-                      <SelectItem value="gpt4-vision">GPT-4 Vision</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div className="space-y-2">
+                      <Label>Multimodal Processing</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select multimodal model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {groupedModels['multimodal']?.map((model) => (
+                            <SelectItem key={model.model_id} value={model.model_id}>
+                              {model.model_name} ({model.provider})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Audio Processing</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select audio model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="whisper">Whisper</SelectItem>
-                      <SelectItem value="deepgram">Deepgram</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div className="space-y-2">
+                      <Label>Audio Processing</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select audio model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {groupedModels['audio-transcription']?.map((model) => (
+                            <SelectItem key={model.model_id} value={model.model_id}>
+                              {model.model_name} ({model.provider})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="pt-6 border-t">
+                <ApiKeyManager />
               </div>
             </CardContent>
           </Card>
@@ -96,7 +124,10 @@ export function SetupPage() {
             <CardContent>
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">1. Install Required Tools</h3>
-                <p>Download and install the necessary development tools.</p>
+                <p>Install aisuite and required provider packages:</p>
+                <pre className="bg-muted p-4 rounded-md">
+                  pip install 'aisuite[all]'
+                </pre>
                 
                 <h3 className="text-lg font-semibold">2. Configure Environment</h3>
                 <p>Set up your development environment with the recommended settings.</p>
