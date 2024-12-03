@@ -14,7 +14,7 @@ export function SetupPage() {
     queryFn: fetchAvailableModels,
   });
 
-  const groupedModels = groupModelsByCapability(models);
+  const groupedModels = groupModelsByCapability(models || []);
 
   return (
     <div className="container mx-auto space-y-6 py-8">
