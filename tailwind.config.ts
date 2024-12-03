@@ -40,6 +40,10 @@ export default {
           DEFAULT: "#F6F6F7",
           foreground: "#666666",
         },
+        selection: {
+          background: "hsl(var(--selection-background))",
+          foreground: "hsl(var(--selection-foreground))",
+        },
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],

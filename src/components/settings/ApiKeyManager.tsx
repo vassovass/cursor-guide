@@ -13,7 +13,7 @@ interface ApiKey {
   is_enabled: boolean;
 }
 
-const DEFAULT_API_KEYS = [
+const DEFAULT_API_KEYS: Omit<ApiKey, 'id'>[] = [
   { model_name: 'GPT-4O', model_id: 'gpt4o', is_enabled: true },
   { model_name: 'GPT-4O Mini', model_id: 'gpt4o-mini', is_enabled: true },
 ];
@@ -42,9 +42,14 @@ export function ApiKeyManager() {
     }
 
     if (existingKeys && existingKeys.length > 0) {
-      setApiKeys(existingKeys);
+      setApiKeys(existingKeys as ApiKey[]);
     } else {
-      setApiKeys(DEFAULT_API_KEYS);
+      // Create default keys with generated IDs
+      const defaultKeysWithIds = DEFAULT_API_KEYS.map(key => ({
+        ...key,
+        id: crypto.randomUUID()
+      }));
+      setApiKeys(defaultKeysWithIds);
     }
   };
 
@@ -80,7 +85,7 @@ export function ApiKeyManager() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto bg-background border-border">
+    <Card className="w-full max-w-2xl mx-auto bg-background border-border" data-testid="api-key-manager">
       <CardHeader>
         <CardTitle className="text-foreground">AI Model API Keys</CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -89,7 +94,7 @@ export function ApiKeyManager() {
       </CardHeader>
       <CardContent className="space-y-6">
         {apiKeys.map((apiKey) => (
-          <div key={apiKey.model_id} className="space-y-2">
+          <div key={apiKey.id} className="space-y-2" data-testid={`api-key-item-${apiKey.model_id}`}>
             <div className="flex justify-between items-center">
               <label htmlFor={apiKey.model_id} className="text-sm font-medium text-foreground">
                 {apiKey.model_name}
@@ -97,22 +102,25 @@ export function ApiKeyManager() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => toggleKeyVisibility(apiKey.model_id)}
+                onClick={() => toggleKeyVisibility(apiKey.id)}
                 className="text-muted-foreground hover:text-foreground"
+                data-testid={`toggle-visibility-${apiKey.model_id}`}
               >
-                {showKeys[apiKey.model_id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showKeys[apiKey.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
             <div className="flex gap-2">
               <Input
                 id={apiKey.model_id}
-                type={showKeys[apiKey.model_id] ? "text" : "password"}
+                type={showKeys[apiKey.id] ? "text" : "password"}
                 placeholder={`Enter ${apiKey.model_name} API key`}
                 className="flex-1 bg-background text-foreground"
+                data-testid={`api-key-input-${apiKey.model_id}`}
               />
               <Button
                 onClick={() => saveKey(apiKey.model_id, apiKey.model_name, apiKey.is_enabled)}
                 className="gap-2"
+                data-testid={`save-key-${apiKey.model_id}`}
               >
                 <Save className="h-4 w-4" />
                 Save

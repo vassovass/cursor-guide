@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 220 33% 98%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -23,6 +23,8 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
+    --selection-background: 220 13% 91%;
+    --selection-foreground: 222.2 47.4% 11.2%;
     --radius: 0.5rem;
   }
 
@@ -46,6 +48,8 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    --selection-background: 217.2 32.6% 17.5%;
+    --selection-foreground: 210 40% 98%;
   }
 }
 
@@ -78,5 +82,20 @@
 
   .text-subtle {
     @apply text-muted-foreground;
+  }
+
+  .menu-item {
+    @apply px-3 py-2 text-sm font-medium rounded-md transition-colors
+    data-[state=open]:bg-selection-background data-[state=open]:text-selection-foreground
+    hover:bg-selection-background/80 hover:text-selection-foreground
+    focus:bg-selection-background focus:text-selection-foreground
+    focus:outline-none;
+  }
+
+  .menu-content {
+    @apply bg-background border border-border shadow-lg rounded-md p-1
+    data-[state=open]:animate-in data-[state=closed]:animate-out
+    data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
+    data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95;
   }
 }
