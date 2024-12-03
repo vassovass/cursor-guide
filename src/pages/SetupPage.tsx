@@ -18,10 +18,10 @@ export function SetupPage() {
 
   return (
     <div className="container mx-auto space-y-6 py-8">
-      <h1 className="text-3xl font-bold">Project Setup Guide</h1>
+      <h1 className="text-3xl font-bold text-foreground">Project Setup Guide</h1>
       
       <Tabs defaultValue="models" className="space-y-4">
-        <TabsList>
+        <TabsList className="w-full">
           <TabsTrigger value="spec">Project Specification</TabsTrigger>
           <TabsTrigger value="models">AI Model Configuration</TabsTrigger>
           <TabsTrigger value="setup">Environment Setup</TabsTrigger>
@@ -54,15 +54,15 @@ export function SetupPage() {
               <CardDescription>Configure AI models and API keys for different capabilities</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4">
-                {isLoading ? (
-                  <div>Loading available models...</div>
-                ) : (
-                  <>
+              {isLoading ? (
+                <div>Loading available models...</div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="space-y-4">
                     <div className="space-y-2">
                       <Label>Text Generation Model</Label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select text generation model" />
                         </SelectTrigger>
                         <SelectContent>
@@ -78,7 +78,7 @@ export function SetupPage() {
                     <div className="space-y-2">
                       <Label>Chat Model</Label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select chat model" />
                         </SelectTrigger>
                         <SelectContent>
@@ -90,13 +90,13 @@ export function SetupPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                  </>
-                )}
-              </div>
+                  </div>
 
-              <div className="pt-6 border-t">
-                <ApiKeyManager />
-              </div>
+                  <div className="border-t pt-6">
+                    <ApiKeyManager />
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

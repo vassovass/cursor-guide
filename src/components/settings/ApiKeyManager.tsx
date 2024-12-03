@@ -90,30 +90,36 @@ export function ApiKeyManager() {
         </Button>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue={capabilities[0]} className="space-y-4">
-          <TabsList className="w-full h-auto flex-wrap gap-2">
-            {capabilities.map(capability => (
-              <TabsTrigger
-                key={capability}
-                value={capability}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {CAPABILITY_LABELS[capability] || capability}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        {capabilities.length > 0 ? (
+          <Tabs defaultValue={capabilities[0]} className="space-y-4">
+            <TabsList className="w-full h-auto flex-wrap gap-2">
+              {capabilities.map(capability => (
+                <TabsTrigger
+                  key={capability}
+                  value={capability}
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                >
+                  {CAPABILITY_LABELS[capability] || capability}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-          {capabilities.map(capability => (
-            <ModelList
-              key={capability}
-              models={groupedModels[capability]}
-              capability={capability}
-              showKeys={showKeys}
-              onToggleVisibility={toggleKeyVisibility}
-              userConfigs={userConfigs}
-            />
-          ))}
-        </Tabs>
+            {capabilities.map(capability => (
+              <ModelList
+                key={capability}
+                models={groupedModels[capability]}
+                capability={capability}
+                showKeys={showKeys}
+                onToggleVisibility={toggleKeyVisibility}
+                userConfigs={userConfigs}
+              />
+            ))}
+          </Tabs>
+        ) : (
+          <div className="text-center py-4 text-muted-foreground">
+            No AI models available. Try syncing to fetch the latest models.
+          </div>
+        )}
       </CardContent>
     </Card>
   );
