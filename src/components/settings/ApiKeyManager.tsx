@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ApiKey {
   id: string;
@@ -21,7 +22,24 @@ interface AiModel {
   provider: string;
   is_available: boolean;
   version: string | null;
+  capabilities: {
+    tasks: string[];
+    features: string[];
+  };
 }
+
+interface GroupedModels {
+  [key: string]: AiModel[];
+}
+
+const CAPABILITY_LABELS = {
+  'text-generation': 'Text Generation',
+  'image-generation': 'Image Generation',
+  'audio-transcription': 'Audio Processing',
+  'multimodal': 'Multimodal',
+  'reasoning': 'Reasoning & Analysis',
+  'vision': 'Computer Vision',
+};
 
 const fetchAvailableModels = async () => {
   const { data, error } = await supabase
@@ -42,6 +60,27 @@ export function ApiKeyManager() {
     queryKey: ['available-models'],
     queryFn: fetchAvailableModels,
   });
+
+  const groupModelsByCapability = (models: AiModel[] | undefined): GroupedModels => {
+    if (!models) return {};
+    
+    const grouped: GroupedModels = {};
+    
+    models.forEach(model => {
+      if (model.capabilities?.tasks) {
+        model.capabilities.tasks.forEach(task => {
+          if (!grouped[task]) {
+            grouped[task] = [];
+          }
+          if (!grouped[task].find(m => m.model_id === model.model_id)) {
+            grouped[task].push(model);
+          }
+        });
+      }
+    });
+    
+    return grouped;
+  };
 
   useEffect(() => {
     if (availableModels) {
@@ -66,7 +105,6 @@ export function ApiKeyManager() {
     if (existingKeys && existingKeys.length > 0) {
       setApiKeys(existingKeys as ApiKey[]);
     } else if (availableModels) {
-      // Create default keys for available models
       const defaultKeys = availableModels.map(model => ({
         id: crypto.randomUUID(),
         model_id: model.model_id,
@@ -118,50 +156,81 @@ export function ApiKeyManager() {
     );
   }
 
+  const groupedModels = groupModelsByCapability(availableModels);
+  const capabilities = Object.keys(groupedModels).sort();
+
   return (
     <Card className="w-full max-w-2xl mx-auto bg-card border-border" data-testid="api-key-manager">
       <CardHeader>
         <CardTitle className="text-foreground">AI Model API Keys</CardTitle>
         <CardDescription className="text-muted-foreground">
-          Configure your API keys for different AI models
+          Configure your API keys for different AI capabilities
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {apiKeys.map((apiKey) => (
-          <div key={apiKey.id} className="space-y-2 p-4 rounded-lg bg-muted/50" data-testid={`api-key-item-${apiKey.model_id}`}>
-            <div className="flex justify-between items-center">
-              <label htmlFor={apiKey.model_id} className="text-sm font-medium text-foreground">
-                {apiKey.model_name}
-              </label>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleKeyVisibility(apiKey.id)}
-                className="text-muted-foreground hover:text-foreground"
-                data-testid={`toggle-visibility-${apiKey.model_id}`}
+      <CardContent>
+        <Tabs defaultValue={capabilities[0]} className="space-y-4">
+          <TabsList className="w-full h-auto flex-wrap gap-2">
+            {capabilities.map(capability => (
+              <TabsTrigger
+                key={capability}
+                value={capability}
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                {showKeys[apiKey.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              <Input
-                id={apiKey.model_id}
-                type={showKeys[apiKey.id] ? "text" : "password"}
-                placeholder={`Enter ${apiKey.model_name} API key`}
-                className="flex-1 bg-background text-foreground"
-                data-testid={`api-key-input-${apiKey.model_id}`}
-              />
-              <Button
-                onClick={() => saveKey(apiKey.model_id, apiKey.model_name, apiKey.is_enabled)}
-                className="gap-2"
-                data-testid={`save-key-${apiKey.model_id}`}
-              >
-                <Save className="h-4 w-4" />
-                Save
-              </Button>
-            </div>
-          </div>
-        ))}
+                {CAPABILITY_LABELS[capability as keyof typeof CAPABILITY_LABELS] || capability}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {capabilities.map(capability => (
+            <TabsContent key={capability} value={capability} className="space-y-4">
+              {groupedModels[capability].map((model) => (
+                <div 
+                  key={model.model_id} 
+                  className="space-y-2 p-4 rounded-lg bg-muted/50"
+                  data-testid={`api-key-item-${model.model_id}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-1">
+                      <label htmlFor={model.model_id} className="text-sm font-medium text-foreground">
+                        {model.model_name}
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        Provider: {model.provider}
+                        {model.version && ` • Version: ${model.version}`}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleKeyVisibility(model.id)}
+                      className="text-muted-foreground hover:text-foreground"
+                      data-testid={`toggle-visibility-${model.model_id}`}
+                    >
+                      {showKeys[model.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      id={model.model_id}
+                      type={showKeys[model.id] ? "text" : "password"}
+                      placeholder={`Enter ${model.model_name} API key`}
+                      className="flex-1 bg-background text-foreground"
+                      data-testid={`api-key-input-${model.model_id}`}
+                    />
+                    <Button
+                      onClick={() => saveKey(model.model_id, model.model_name, true)}
+                      className="gap-2"
+                      data-testid={`save-key-${model.model_id}`}
+                    >
+                      <Save className="h-4 w-4" />
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </TabsContent>
+          ))}
+        </Tabs>
       </CardContent>
     </Card>
   );
