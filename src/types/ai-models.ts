@@ -7,7 +7,7 @@ export interface AiModelCapabilities {
 
 export interface AiModel {
   id: string;
-  model_id: string;
+  model_id: string;  // format: "provider:model-name"
   model_name: string;
   provider: string;
   is_available: boolean;

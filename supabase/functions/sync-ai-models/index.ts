@@ -6,9 +6,41 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL');
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-const aiSuiteApiUrl = Deno.env.get('AI_SUITE_API_URL');
+const DEFAULT_MODELS = [
+  {
+    model_id: "openai:gpt-4o",
+    model_name: "GPT-4 Optimized",
+    provider: "OpenAI",
+    capabilities: {
+      tasks: ["text-generation", "reasoning"],
+      features: ["chat", "function-calling"]
+    },
+    version: "latest",
+    is_available: true
+  },
+  {
+    model_id: "anthropic:claude-3-5-sonnet",
+    model_name: "Claude 3 Sonnet",
+    provider: "Anthropic",
+    capabilities: {
+      tasks: ["text-generation", "reasoning", "multimodal"],
+      features: ["chat", "vision"]
+    },
+    version: "20240620",
+    is_available: true
+  },
+  {
+    model_id: "google:gemini-pro",
+    model_name: "Gemini Pro",
+    provider: "Google",
+    capabilities: {
+      tasks: ["text-generation", "reasoning"],
+      features: ["chat", "function-calling"]
+    },
+    version: "latest",
+    is_available: true
+  }
+];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -16,30 +48,16 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client
-    const supabase = createClient(supabaseUrl!, supabaseKey!);
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Fetch models from AI Suite API
-    const response = await fetch(`${aiSuiteApiUrl}/models`);
-    const aiSuiteModels = await response.json();
+    console.log('Syncing default AI models');
 
-    console.log('Fetched models from AI Suite:', aiSuiteModels);
-
-    // Transform and update local database with AI Suite models
     const { data, error } = await supabase
       .from('ai_suite_models')
       .upsert(
-        aiSuiteModels.map((model: any) => ({
-          model_id: model.id,
-          model_name: model.name,
-          provider: model.provider,
-          capabilities: {
-            tasks: model.capabilities?.tasks || [],
-            features: model.capabilities?.features || []
-          },
-          version: model.version,
-          is_available: model.isAvailable
-        })),
+        DEFAULT_MODELS,
         { onConflict: 'model_id' }
       );
 
