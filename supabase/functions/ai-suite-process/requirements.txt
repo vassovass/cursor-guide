@@ -1,1 +1,8 @@
 aisuite[all]
+anthropic
+google-cloud-aiplatform
+groq
+mistralai
+perplexity-ai
+boto3
+huggingface_hub
