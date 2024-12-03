@@ -1,9 +1,7 @@
-import { AiModel, GroupedModels, SupabaseAiModel } from '@/types/ai-models';
+import { AiModel, GroupedModels } from '@/types/ai-models';
 import { supabase } from '@/integrations/supabase/client';
 
-export const transformSupabaseModel = (model: SupabaseAiModel): AiModel => {
-  const capabilities = model.capabilities as { tasks?: string[], features?: string[] } | null;
-  
+export const transformSupabaseModel = (model: any): AiModel => {
   return {
     id: model.id,
     model_id: model.model_id,
@@ -12,8 +10,8 @@ export const transformSupabaseModel = (model: SupabaseAiModel): AiModel => {
     is_available: model.is_available,
     version: model.version,
     capabilities: {
-      tasks: Array.isArray(capabilities?.tasks) ? capabilities.tasks : [],
-      features: Array.isArray(capabilities?.features) ? capabilities.features : []
+      tasks: Array.isArray(model.capabilities?.tasks) ? model.capabilities.tasks : [],
+      features: Array.isArray(model.capabilities?.features) ? model.capabilities.features : []
     }
   };
 };
@@ -25,41 +23,7 @@ export const fetchAvailableModels = async (): Promise<AiModel[]> => {
     .eq('is_available', true);
 
   if (error) throw error;
-  return (data as SupabaseAiModel[]).map(transformSupabaseModel);
-};
-
-export const groupModelsByProvider = (models: AiModel[]): GroupedModels => {
-  const grouped: GroupedModels = {};
-  
-  models.forEach(model => {
-    const provider = model.provider;
-    if (!grouped[provider]) {
-      grouped[provider] = [];
-    }
-    if (!grouped[provider].find(m => m.model_id === model.model_id)) {
-      grouped[provider].push(model);
-    }
-  });
-  
-  return grouped;
-};
-
-export const groupModelsByCapability = (models: AiModel[]): GroupedModels => {
-  const grouped: GroupedModels = {};
-  
-  models.forEach(model => {
-    const capabilities = model.capabilities.tasks || [];
-    capabilities.forEach(capability => {
-      if (!grouped[capability]) {
-        grouped[capability] = [];
-      }
-      if (!grouped[capability].find(m => m.model_id === model.model_id)) {
-        grouped[capability].push(model);
-      }
-    });
-  });
-  
-  return grouped;
+  return (data as any[]).map(transformSupabaseModel);
 };
 
 export const saveModelApiKey = async (
