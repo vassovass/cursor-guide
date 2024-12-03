@@ -47,27 +47,33 @@ export type Database = {
       }
       api_model_configs: {
         Row: {
+          api_key: string | null
           created_at: string | null
           id: string
           is_enabled: boolean | null
+          last_verified_at: string | null
           model_id: string
           model_name: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          api_key?: string | null
           created_at?: string | null
           id?: string
           is_enabled?: boolean | null
+          last_verified_at?: string | null
           model_id: string
           model_name: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          api_key?: string | null
           created_at?: string | null
           id?: string
           is_enabled?: boolean | null
+          last_verified_at?: string | null
           model_id?: string
           model_name?: string
           updated_at?: string | null

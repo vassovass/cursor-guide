@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ModelKeyInput } from './ModelKeyInput';
-import { fetchAvailableModels, groupModelsByCapability } from '@/utils/model-utils';
+import { fetchAvailableModels, groupModelsByCapability, fetchUserModelConfigs } from '@/utils/model-utils';
 import { ApiKey, CAPABILITY_LABELS } from '@/types/ai-models';
 
 export function ApiKeyManager() {
@@ -13,31 +13,46 @@ export function ApiKeyManager() {
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
-  const { data: availableModels, isError: isModelsError } = useQuery({
+  const { data: availableModels, isError: isModelsError, refetch: refetchModels } = useQuery({
     queryKey: ['available-models'],
     queryFn: fetchAvailableModels,
   });
+
+  const { data: userConfigs, refetch: refetchConfigs } = useQuery({
+    queryKey: ['user-model-configs'],
+    queryFn: fetchUserModelConfigs,
+  });
+
+  // Sync with AI Suite periodically
+  useEffect(() => {
+    const syncModels = async () => {
+      try {
+        await supabase.functions.invoke('sync-ai-models');
+        refetchModels();
+      } catch (error) {
+        console.error('Error syncing models:', error);
+      }
+    };
+
+    // Initial sync
+    syncModels();
+
+    // Set up periodic sync (every 5 minutes)
+    const interval = setInterval(syncModels, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [refetchModels]);
 
   useEffect(() => {
     if (availableModels) {
       fetchApiKeys();
     }
-  }, [availableModels]);
+  }, [availableModels, userConfigs]);
 
   const fetchApiKeys = async () => {
-    const { data: existingKeys, error } = await supabase
-      .from('api_model_configs')
-      .select('*');
+    if (!userConfigs) return;
 
-    if (error) {
-      toast({
-        title: "Error fetching API keys",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
+    const existingKeys = userConfigs;
     if (existingKeys && existingKeys.length > 0) {
       setApiKeys(existingKeys as ApiKey[]);
     } else if (availableModels) {
@@ -49,33 +64,6 @@ export function ApiKeyManager() {
       }));
       setApiKeys(defaultKeys);
     }
-  };
-
-  const saveKey = async (modelId: string, modelName: string, isEnabled: boolean) => {
-    const { error } = await supabase
-      .from('api_model_configs')
-      .upsert({
-        model_id: modelId,
-        model_name: modelName,
-        is_enabled: isEnabled,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
-      });
-
-    if (error) {
-      toast({
-        title: "Error saving API key",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "API Key Saved",
-      description: `API key for ${modelName} has been saved.`,
-    });
-
-    fetchApiKeys();
   };
 
   const toggleKeyVisibility = (id: string) => {
@@ -119,15 +107,21 @@ export function ApiKeyManager() {
 
           {capabilities.map(capability => (
             <TabsContent key={capability} value={capability} className="space-y-4">
-              {groupedModels[capability].map((model) => (
-                <ModelKeyInput
-                  key={model.model_id}
-                  model={model}
-                  showKey={showKeys[model.id]}
-                  onToggleVisibility={() => toggleKeyVisibility(model.id)}
-                  onSave={saveKey}
-                />
-              ))}
+              {groupedModels[capability].map((model) => {
+                const existingConfig = userConfigs?.find(
+                  config => config.model_id === model.model_id
+                );
+                return (
+                  <ModelKeyInput
+                    key={model.model_id}
+                    model={model}
+                    showKey={showKeys[model.id]}
+                    onToggleVisibility={() => toggleKeyVisibility(model.id)}
+                    existingApiKey={existingConfig?.api_key}
+                    isEnabled={existingConfig?.is_enabled ?? true}
+                  />
+                );
+              })}
             </TabsContent>
           ))}
         </Tabs>
