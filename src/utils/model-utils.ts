@@ -28,21 +28,16 @@ export const fetchAvailableModels = async (): Promise<AiModel[]> => {
   return (data as SupabaseAiModel[]).map(transformSupabaseModel);
 };
 
-export const groupModelsByCapability = (models: AiModel[] | undefined): GroupedModels => {
-  if (!models) return {};
-  
+export const groupModelsByProvider = (models: AiModel[]): GroupedModels => {
   const grouped: GroupedModels = {};
   
   models.forEach(model => {
-    if (model.capabilities?.tasks) {
-      model.capabilities.tasks.forEach(task => {
-        if (!grouped[task]) {
-          grouped[task] = [];
-        }
-        if (!grouped[task].find(m => m.model_id === model.model_id)) {
-          grouped[task].push(model);
-        }
-      });
+    const provider = model.provider;
+    if (!grouped[provider]) {
+      grouped[provider] = [];
+    }
+    if (!grouped[provider].find(m => m.model_id === model.model_id)) {
+      grouped[provider].push(model);
     }
   });
   

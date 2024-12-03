@@ -7,8 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { fetchAvailableModels, groupModelsByCapability, fetchUserModelConfigs } from '@/utils/model-utils';
-import { CAPABILITY_LABELS } from '@/types/ai-models';
+import { fetchAvailableModels, groupModelsByProvider, fetchUserModelConfigs } from '@/utils/model-utils';
 import { ModelList } from './ModelList';
 
 export function ApiKeyManager() {
@@ -33,13 +32,13 @@ export function ApiKeyManager() {
       await refetchModels();
       toast({
         title: "Models Synced",
-        description: "Successfully synchronized with latest AI Suite models.",
+        description: "Successfully synchronized available AI models.",
       });
     } catch (error) {
       console.error('Error syncing models:', error);
       toast({
         title: "Sync Failed",
-        description: "Failed to sync with AI Suite models. Please try again.",
+        description: "Failed to sync AI models. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -49,8 +48,6 @@ export function ApiKeyManager() {
 
   useEffect(() => {
     syncModels();
-    const interval = setInterval(syncModels, 60 * 60 * 1000); // Sync every hour
-    return () => clearInterval(interval);
   }, []);
 
   const toggleKeyVisibility = (id: string) => {
@@ -77,16 +74,16 @@ export function ApiKeyManager() {
     );
   }
 
-  const groupedModels = groupModelsByCapability(availableModels);
-  const capabilities = Object.keys(groupedModels).sort();
+  const groupedModels = groupModelsByProvider(availableModels || []);
+  const providers = Object.keys(groupedModels).sort();
 
   return (
     <Card className="w-full max-w-2xl mx-auto bg-card border-border" data-testid="api-key-manager">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-foreground">AI Model Configuration</CardTitle>
+          <CardTitle className="text-foreground">AI Provider Configuration</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Configure your API keys for different AI capabilities
+            Configure your API keys for different AI providers
           </CardDescription>
         </div>
         <Button
@@ -107,25 +104,25 @@ export function ApiKeyManager() {
           </AlertDescription>
         </Alert>
 
-        {capabilities.length > 0 ? (
-          <Tabs defaultValue={capabilities[0]} className="space-y-4">
+        {providers.length > 0 ? (
+          <Tabs defaultValue={providers[0]} className="space-y-4">
             <TabsList className="w-full h-auto flex-wrap gap-2">
-              {capabilities.map(capability => (
+              {providers.map(provider => (
                 <TabsTrigger
-                  key={capability}
-                  value={capability}
+                  key={provider}
+                  value={provider}
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
-                  {CAPABILITY_LABELS[capability] || capability}
+                  {provider}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {capabilities.map(capability => (
-              <TabsContent key={capability} value={capability}>
+            {providers.map(provider => (
+              <TabsContent key={provider} value={provider}>
                 <ModelList
-                  models={groupedModels[capability]}
-                  capability={capability}
+                  models={groupedModels[provider]}
+                  provider={provider}
                   showKeys={showKeys}
                   onToggleVisibility={toggleKeyVisibility}
                   userConfigs={userConfigs}
@@ -135,7 +132,7 @@ export function ApiKeyManager() {
           </Tabs>
         ) : (
           <div className="text-center py-4 text-muted-foreground">
-            No AI models available. Try syncing to fetch the latest models.
+            No AI providers available. Try syncing to fetch the latest models.
           </div>
         )}
       </CardContent>

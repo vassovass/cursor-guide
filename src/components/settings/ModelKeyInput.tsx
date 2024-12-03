@@ -47,20 +47,6 @@ export function ModelKeyInput({
     }
   };
 
-  const getProviderKeyName = () => {
-    const provider = model.provider.toLowerCase();
-    switch (provider) {
-      case 'openai':
-        return 'OpenAI API Key';
-      case 'anthropic':
-        return 'Anthropic API Key';
-      case 'google':
-        return 'Google API Key';
-      default:
-        return `${model.provider} API Key`;
-    }
-  };
-
   const getProviderInstructions = () => {
     const provider = model.provider.toLowerCase();
     switch (provider) {
@@ -68,6 +54,8 @@ export function ModelKeyInput({
         return 'Get your API key from OpenAI dashboard';
       case 'anthropic':
         return 'Get your API key from Anthropic Console';
+      case 'mistral':
+        return 'Get your API key from Mistral AI Platform';
       case 'google':
         return 'Get your API key from Google Cloud Console';
       default:
@@ -98,7 +86,7 @@ export function ModelKeyInput({
         </Button>
       </div>
 
-      <Alert variant="outline" className="mb-4">
+      <Alert>
         <AlertDescription className="text-xs">
           {getProviderInstructions()}
         </AlertDescription>
@@ -110,7 +98,7 @@ export function ModelKeyInput({
           type={showKey ? "text" : "password"}
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder={`Enter ${getProviderKeyName()}`}
+          placeholder="Enter API Key"
           className="flex-1 bg-background text-foreground"
           data-testid={`api-key-input-${model.model_id}`}
         />
