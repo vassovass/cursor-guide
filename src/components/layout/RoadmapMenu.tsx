@@ -27,7 +27,7 @@ export function RoadmapMenu() {
               Development
             </Button>
           </MenubarTrigger>
-          <MenubarContent className="bg-popover border border-border shadow-md backdrop-blur-none">
+          <MenubarContent className="bg-background border border-border shadow-md">
             <MenubarItem onClick={() => navigate("/roadmap")}>
               Full Roadmap
             </MenubarItem>

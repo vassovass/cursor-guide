@@ -103,20 +103,38 @@
   }
 }
 
+/* Dropdown and Menu styling */
+[role="listbox"],
+[role="menu"],
+.select-content,
+[role="dialog"] {
+  @apply bg-background border border-border shadow-md;
+  @apply dark:bg-gray-900 dark:border-gray-800;
+}
+
+[role="option"],
+[role="menuitem"],
+.select-item {
+  @apply bg-background text-foreground cursor-pointer;
+  @apply hover:bg-accent hover:text-accent-foreground;
+  @apply dark:bg-gray-900 dark:text-gray-100;
+  @apply dark:hover:bg-gray-800 dark:hover:text-white;
+  @apply focus:bg-accent focus:text-accent-foreground;
+  @apply dark:focus:bg-gray-800 dark:focus:text-white;
+}
+
+/* Select component specific styles */
+.select-content {
+  @apply animate-in fade-in-0 zoom-in-95;
+  @apply data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95;
+}
+
 /* Menu styling overrides */
 [role="menuitem"] {
   @apply cursor-pointer;
 }
 
-.dark [role="menu"] {
-  @apply bg-gray-900 border-gray-700;
-}
-
-/* Ensure menu items are fully visible in both modes */
-[role="menu"] {
-  @apply bg-white dark:bg-gray-900;
-}
-
-[role="menuitem"] {
-  @apply bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800;
+/* Ensure popover content is not transparent */
+[data-radix-popper-content-wrapper] {
+  @apply backdrop-blur-none;
 }
