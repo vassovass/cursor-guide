@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { VersionDisplay } from './VersionDisplay';
 import { SetupPage } from '@/pages/SetupPage';
 import { DocumentationPage } from '@/pages/DocumentationPage';
 import { BestPracticesPage } from '@/pages/BestPracticesPage';
@@ -23,6 +24,7 @@ export function Layout() {
           </Routes>
         </main>
       </div>
+      <VersionDisplay />
     </div>
   );
 }
