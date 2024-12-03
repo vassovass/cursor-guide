@@ -23,7 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
-    --selection-background: 220 13% 91%;
+    --selection-background: 220 20% 85%;
     --selection-foreground: 222.2 47.4% 11.2%;
     --radius: 0.5rem;
   }
@@ -48,7 +48,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    --selection-background: 217.2 32.6% 17.5%;
+    --selection-background: 217.2 32.6% 25%;
     --selection-foreground: 210 40% 98%;
   }
 }
@@ -97,5 +97,13 @@
     data-[state=open]:animate-in data-[state=closed]:animate-out
     data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
     data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95;
+  }
+
+  .selected-item {
+    @apply bg-selection-background text-selection-foreground;
+  }
+
+  .unselected-item {
+    @apply bg-background/80 text-foreground hover:bg-selection-background/60;
   }
 }
