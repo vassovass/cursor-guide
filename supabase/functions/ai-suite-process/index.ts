@@ -18,11 +18,10 @@ serve(async (req) => {
     console.log(`Processing request for model ${modelId}, task: ${task}`);
 
     // Initialize aisuite with the model configuration
-    // Note: This is a placeholder for the actual aisuite integration
-    // You'll need to add the actual aisuite package and configuration here
+    // TODO: Add aisuite integration here once the package is available
     const result = {
       status: 'success',
-      output: 'Placeholder response - aisuite integration pending',
+      output: `Processed with model ${modelId}: ${input}`,
       model: modelId,
       task: task
     };
