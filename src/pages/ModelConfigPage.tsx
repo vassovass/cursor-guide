@@ -1,17 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ApiKeyManager } from '@/components/settings/ApiKeyManager';
 
 export function ModelConfigPage() {
   return (
-    <div className="container mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">Model Configuration</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>AI Model Configuration</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Configure and customize your AI model settings.</p>
-        </CardContent>
-      </Card>
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8 text-foreground">Model Configuration</h1>
+      <ApiKeyManager />
     </div>
   );
 }
