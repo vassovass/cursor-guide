@@ -7,10 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ModelKeyInput } from './ModelKeyInput';
 import { fetchAvailableModels, groupModelsByCapability, fetchUserModelConfigs } from '@/utils/model-utils';
 import { ApiKey, CAPABILITY_LABELS } from '@/types/ai-models';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 export function ApiKeyManager() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
+  const [isSyncing, setIsSyncing] = useState(false);
   const { toast } = useToast();
 
   const { data: availableModels, isError: isModelsError, refetch: refetchModels } = useQuery({
@@ -23,25 +26,34 @@ export function ApiKeyManager() {
     queryFn: fetchUserModelConfigs,
   });
 
-  // Sync with AI Suite periodically
+  // Sync with AI Suite
+  const syncModels = async () => {
+    setIsSyncing(true);
+    try {
+      await supabase.functions.invoke('sync-ai-models');
+      await refetchModels();
+      toast({
+        title: "Models Synced",
+        description: "Successfully synchronized with latest AI Suite models.",
+      });
+    } catch (error) {
+      console.error('Error syncing models:', error);
+      toast({
+        title: "Sync Failed",
+        description: "Failed to sync with AI Suite models. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Initial sync and periodic sync setup
   useEffect(() => {
-    const syncModels = async () => {
-      try {
-        await supabase.functions.invoke('sync-ai-models');
-        refetchModels();
-      } catch (error) {
-        console.error('Error syncing models:', error);
-      }
-    };
-
-    // Initial sync
     syncModels();
-
-    // Set up periodic sync (every 5 minutes)
-    const interval = setInterval(syncModels, 5 * 60 * 1000);
-
+    const interval = setInterval(syncModels, 60 * 60 * 1000); // Sync every hour
     return () => clearInterval(interval);
-  }, [refetchModels]);
+  }, []);
 
   useEffect(() => {
     if (availableModels) {
@@ -85,11 +97,23 @@ export function ApiKeyManager() {
 
   return (
     <Card className="w-full max-w-2xl mx-auto bg-card border-border" data-testid="api-key-manager">
-      <CardHeader>
-        <CardTitle className="text-foreground">AI Model API Keys</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Configure your API keys for different AI capabilities
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="text-foreground">AI Model API Keys</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Configure your API keys for different AI capabilities
+          </CardDescription>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={syncModels}
+          disabled={isSyncing}
+          className="ml-4"
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+          Sync Models
+        </Button>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue={capabilities[0]} className="space-y-4">
