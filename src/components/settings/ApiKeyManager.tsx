@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -20,7 +19,7 @@ export function ApiKeyManager() {
     queryFn: fetchAvailableModels,
   });
 
-  const { data: userConfigs, refetch: refetchConfigs } = useQuery({
+  const { data: userConfigs } = useQuery({
     queryKey: ['user-model-configs'],
     queryFn: fetchUserModelConfigs,
   });
@@ -44,14 +43,6 @@ export function ApiKeyManager() {
     } finally {
       setIsSyncing(false);
     }
-  };
-
-  useEffect(() => {
-    syncModels();
-  }, []);
-
-  const toggleKeyVisibility = (id: string) => {
-    setShowKeys(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   if (isModelsLoading) {
@@ -104,37 +95,26 @@ export function ApiKeyManager() {
           </AlertDescription>
         </Alert>
 
-        {providers.length > 0 ? (
-          <Tabs defaultValue={providers[0]} className="space-y-4">
-            <TabsList className="w-full h-auto flex-wrap gap-2">
-              {providers.map(provider => (
-                <TabsTrigger
-                  key={provider}
-                  value={provider}
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  {provider}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {providers.map(provider => (
-              <TabsContent key={provider} value={provider}>
+        <div className="space-y-6">
+          {providers.length > 0 ? (
+            providers.map(provider => (
+              <div key={provider} className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">{provider}</h3>
                 <ModelList
                   models={groupedModels[provider]}
                   provider={provider}
                   showKeys={showKeys}
-                  onToggleVisibility={toggleKeyVisibility}
+                  onToggleVisibility={(id) => setShowKeys(prev => ({ ...prev, [id]: !prev[id] }))}
                   userConfigs={userConfigs}
                 />
-              </TabsContent>
-            ))}
-          </Tabs>
-        ) : (
-          <div className="text-center py-4 text-muted-foreground">
-            No AI providers available. Try syncing to fetch the latest models.
-          </div>
-        )}
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-4 text-muted-foreground">
+              No AI providers available. Try syncing to fetch the latest models.
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

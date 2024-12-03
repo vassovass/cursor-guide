@@ -5,7 +5,6 @@ import { Eye, EyeOff, Save } from 'lucide-react';
 import { AiModel } from '@/types/ai-models';
 import { useToast } from '@/components/ui/use-toast';
 import { saveModelApiKey } from '@/utils/model-utils';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ModelKeyInputProps {
   model: AiModel;
@@ -47,33 +46,13 @@ export function ModelKeyInput({
     }
   };
 
-  const getProviderInstructions = () => {
-    const provider = model.provider.toLowerCase();
-    switch (provider) {
-      case 'openai':
-        return 'Get your API key from OpenAI dashboard';
-      case 'anthropic':
-        return 'Get your API key from Anthropic Console';
-      case 'mistral':
-        return 'Get your API key from Mistral AI Platform';
-      case 'google':
-        return 'Get your API key from Google Cloud Console';
-      default:
-        return `Get your API key from ${model.provider}'s dashboard`;
-    }
-  };
-
   return (
-    <div className="space-y-2 p-4 rounded-lg bg-muted/50" data-testid={`api-key-item-${model.model_id}`}>
+    <div className="space-y-2" data-testid={`api-key-item-${model.model_id}`}>
       <div className="flex justify-between items-center">
         <div className="space-y-1">
           <label htmlFor={model.model_id} className="text-sm font-medium text-foreground">
-            {model.model_name}
+            API Key
           </label>
-          <p className="text-xs text-muted-foreground">
-            Provider: {model.provider}
-            {model.version && ` • Version: ${model.version}`}
-          </p>
         </div>
         <Button
           variant="ghost"
@@ -85,12 +64,6 @@ export function ModelKeyInput({
           {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </Button>
       </div>
-
-      <Alert>
-        <AlertDescription className="text-xs">
-          {getProviderInstructions()}
-        </AlertDescription>
-      </Alert>
 
       <div className="flex gap-2">
         <Input
