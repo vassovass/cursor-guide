@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_suite_models: {
+        Row: {
+          capabilities: Json | null
+          created_at: string | null
+          id: string
+          is_available: boolean | null
+          model_id: string
+          model_name: string
+          provider: string
+          updated_at: string | null
+          version: string | null
+        }
+        Insert: {
+          capabilities?: Json | null
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          model_id: string
+          model_name: string
+          provider: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Update: {
+          capabilities?: Json | null
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          model_id?: string
+          model_name?: string
+          provider?: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
       api_model_configs: {
         Row: {
           created_at: string | null

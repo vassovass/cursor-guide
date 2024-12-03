@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 interface ApiKey {
   id: string;
@@ -13,19 +14,40 @@ interface ApiKey {
   is_enabled: boolean;
 }
 
-const DEFAULT_API_KEYS: Omit<ApiKey, 'id'>[] = [
-  { model_name: 'GPT-4O', model_id: 'gpt4o', is_enabled: true },
-  { model_name: 'GPT-4O Mini', model_id: 'gpt4o-mini', is_enabled: true },
-];
+interface AiModel {
+  id: string;
+  model_id: string;
+  model_name: string;
+  provider: string;
+  is_available: boolean;
+  version: string | null;
+}
+
+const fetchAvailableModels = async () => {
+  const { data, error } = await supabase
+    .from('ai_suite_models')
+    .select('*')
+    .eq('is_available', true);
+
+  if (error) throw error;
+  return data as AiModel[];
+};
 
 export function ApiKeyManager() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
+  const { data: availableModels, isError: isModelsError } = useQuery({
+    queryKey: ['available-models'],
+    queryFn: fetchAvailableModels,
+  });
+
   useEffect(() => {
-    fetchApiKeys();
-  }, []);
+    if (availableModels) {
+      fetchApiKeys();
+    }
+  }, [availableModels]);
 
   const fetchApiKeys = async () => {
     const { data: existingKeys, error } = await supabase
@@ -43,13 +65,15 @@ export function ApiKeyManager() {
 
     if (existingKeys && existingKeys.length > 0) {
       setApiKeys(existingKeys as ApiKey[]);
-    } else {
-      // Create default keys with generated IDs
-      const defaultKeysWithIds = DEFAULT_API_KEYS.map(key => ({
-        ...key,
-        id: crypto.randomUUID()
+    } else if (availableModels) {
+      // Create default keys for available models
+      const defaultKeys = availableModels.map(model => ({
+        id: crypto.randomUUID(),
+        model_id: model.model_id,
+        model_name: model.model_name,
+        is_enabled: true
       }));
-      setApiKeys(defaultKeysWithIds);
+      setApiKeys(defaultKeys);
     }
   };
 
@@ -84,8 +108,18 @@ export function ApiKeyManager() {
     setShowKeys(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  if (isModelsError) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="p-6">
+          <div className="text-destructive">Error loading AI models. Please try again later.</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="w-full max-w-2xl mx-auto bg-background border-border" data-testid="api-key-manager">
+    <Card className="w-full max-w-2xl mx-auto bg-card border-border" data-testid="api-key-manager">
       <CardHeader>
         <CardTitle className="text-foreground">AI Model API Keys</CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -94,7 +128,7 @@ export function ApiKeyManager() {
       </CardHeader>
       <CardContent className="space-y-6">
         {apiKeys.map((apiKey) => (
-          <div key={apiKey.id} className="space-y-2" data-testid={`api-key-item-${apiKey.model_id}`}>
+          <div key={apiKey.id} className="space-y-2 p-4 rounded-lg bg-muted/50" data-testid={`api-key-item-${apiKey.model_id}`}>
             <div className="flex justify-between items-center">
               <label htmlFor={apiKey.model_id} className="text-sm font-medium text-foreground">
                 {apiKey.model_name}
