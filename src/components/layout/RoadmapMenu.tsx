@@ -5,8 +5,9 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarTrigger,
+  MenubarSeparator,
 } from "@/components/ui/menubar";
-import { FileText } from "lucide-react";
+import { FileText, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function RoadmapMenu() {
@@ -17,11 +18,15 @@ export function RoadmapMenu() {
       <MenubarMenu>
         <MenubarTrigger asChild>
           <Button variant="ghost" size="sm" className="gap-2">
-            <FileText className="w-4 h-4" />
-            Roadmap
+            <Activity className="w-4 h-4" />
+            Development
           </Button>
         </MenubarTrigger>
         <MenubarContent>
+          <MenubarItem onClick={() => navigate("/roadmap")}>
+            Full Roadmap
+          </MenubarItem>
+          <MenubarSeparator />
           <MenubarItem onClick={() => navigate("/roadmap/sprint-1")}>
             Sprint 1: Foundation
           </MenubarItem>
@@ -36,6 +41,13 @@ export function RoadmapMenu() {
           </MenubarItem>
           <MenubarItem onClick={() => navigate("/roadmap/sprint-5")}>
             Sprint 5: Launch
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem onClick={() => navigate("/logs")}>
+            View Logs
+          </MenubarItem>
+          <MenubarItem onClick={() => navigate("/metrics")}>
+            Development Metrics
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>

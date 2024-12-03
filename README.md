@@ -1,69 +1,59 @@
-# Welcome to your Lovable project
+# CursorGuide - AI-Powered Desktop App Development Assistant
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/baa97a50-9cca-4e74-92ea-3843319c787b
+CursorGuide is a specialized web application designed to help developers create robust desktop applications using Cursor.ai and AI Suite by following best practices and structured approaches. It serves as an interactive guide that helps refine specifications, configure AI models, and implement features according to established patterns.
 
-## How can I edit this code?
+## Key Features
 
-There are several ways of editing your application.
+- **Specification Refinement**: AI-assisted project specification development and validation
+- **Multi-Modal AI Configuration**: 
+  - Text Processing: GPT-4, Claude, etc.
+  - Image Processing: Claude 3, GPT-4 Vision
+  - Audio Processing: Whisper, Deepgram
+- **Development Workflow Integration**:
+  - Cursor.ai best practices
+  - AI Suite compatibility guidelines
+  - Cross-platform desktop development patterns
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/baa97a50-9cca-4e74-92ea-3843319c787b) and start prompting.
+1. **Project Setup**
+   - Define your project specifications
+   - Configure AI model preferences
+   - Set up your development environment
 
-Changes made via Lovable will be committed automatically to this repo.
+2. **AI Model Configuration**
+   - Select appropriate models for different tasks
+   - Configure model parameters
+   - Test and validate outputs
 
-**Use your preferred IDE**
+3. **Implementation Guide**
+   - Follow structured development patterns
+   - Implement cross-platform compatibility
+   - Validate against best practices
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Development Mode Features
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The application includes a debug/developer mode that provides access to:
+- Sprint planning and tracking
+- Detailed roadmap visualization
+- Error logging and monitoring
+- Development metrics
 
-Follow these steps:
+## Technologies Used
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Frontend: React + TypeScript + Vite
+- UI Components: shadcn/ui
+- Styling: Tailwind CSS
+- State Management: TanStack Query
+- Error Tracking: Sentry
+- Testing: Vitest + Testing Library
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Contributing
 
-# Step 3: Install the necessary dependencies.
-npm i
+This project is currently in development. For contribution guidelines, please refer to the development documentation in the debug mode.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## License
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/baa97a50-9cca-4e74-92ea-3843319c787b) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+[MIT License](LICENSE)
