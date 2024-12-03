@@ -60,10 +60,10 @@ export function SetupPage() {
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <Label>Text Processing Model</Label>
+                      <Label>Text Generation Model</Label>
                       <Select>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select text model" />
+                          <SelectValue placeholder="Select text generation model" />
                         </SelectTrigger>
                         <SelectContent>
                           {groupedModels['text-generation']?.map((model) => (
@@ -76,29 +76,13 @@ export function SetupPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Multimodal Processing</Label>
+                      <Label>Chat Model</Label>
                       <Select>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select multimodal model" />
+                          <SelectValue placeholder="Select chat model" />
                         </SelectTrigger>
                         <SelectContent>
-                          {groupedModels['multimodal']?.map((model) => (
-                            <SelectItem key={model.model_id} value={model.model_id}>
-                              {model.model_name} ({model.provider})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Audio Processing</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select audio model" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {groupedModels['audio-transcription']?.map((model) => (
+                          {groupedModels['chat']?.map((model) => (
                             <SelectItem key={model.model_id} value={model.model_id}>
                               {model.model_name} ({model.provider})
                             </SelectItem>

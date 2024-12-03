@@ -3,15 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ModelKeyInput } from './ModelKeyInput';
-import { fetchAvailableModels, groupModelsByCapability, fetchUserModelConfigs } from '@/utils/model-utils';
-import { ApiKey, CAPABILITY_LABELS } from '@/types/ai-models';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { ModelList } from './ModelList';
+import { fetchAvailableModels, groupModelsByCapability, fetchUserModelConfigs } from '@/utils/model-utils';
+import { CAPABILITY_LABELS } from '@/types/ai-models';
 
 export function ApiKeyManager() {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [isSyncing, setIsSyncing] = useState(false);
   const { toast } = useToast();
@@ -26,7 +25,6 @@ export function ApiKeyManager() {
     queryFn: fetchUserModelConfigs,
   });
 
-  // Sync with AI Suite
   const syncModels = async () => {
     setIsSyncing(true);
     try {
@@ -48,35 +46,11 @@ export function ApiKeyManager() {
     }
   };
 
-  // Initial sync and periodic sync setup
   useEffect(() => {
     syncModels();
     const interval = setInterval(syncModels, 60 * 60 * 1000); // Sync every hour
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    if (availableModels) {
-      fetchApiKeys();
-    }
-  }, [availableModels, userConfigs]);
-
-  const fetchApiKeys = async () => {
-    if (!userConfigs) return;
-
-    const existingKeys = userConfigs;
-    if (existingKeys && existingKeys.length > 0) {
-      setApiKeys(existingKeys as ApiKey[]);
-    } else if (availableModels) {
-      const defaultKeys = availableModels.map(model => ({
-        id: crypto.randomUUID(),
-        model_id: model.model_id,
-        model_name: model.model_name,
-        is_enabled: true
-      }));
-      setApiKeys(defaultKeys);
-    }
-  };
 
   const toggleKeyVisibility = (id: string) => {
     setShowKeys(prev => ({ ...prev, [id]: !prev[id] }));
@@ -130,23 +104,14 @@ export function ApiKeyManager() {
           </TabsList>
 
           {capabilities.map(capability => (
-            <TabsContent key={capability} value={capability} className="space-y-4">
-              {groupedModels[capability].map((model) => {
-                const existingConfig = userConfigs?.find(
-                  config => config.model_id === model.model_id
-                );
-                return (
-                  <ModelKeyInput
-                    key={model.model_id}
-                    model={model}
-                    showKey={showKeys[model.id]}
-                    onToggleVisibility={() => toggleKeyVisibility(model.id)}
-                    existingApiKey={existingConfig?.api_key}
-                    isEnabled={existingConfig?.is_enabled ?? true}
-                  />
-                );
-              })}
-            </TabsContent>
+            <ModelList
+              key={capability}
+              models={groupedModels[capability]}
+              capability={capability}
+              showKeys={showKeys}
+              onToggleVisibility={toggleKeyVisibility}
+              userConfigs={userConfigs}
+            />
           ))}
         </Tabs>
       </CardContent>
