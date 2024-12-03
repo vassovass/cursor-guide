@@ -1,38 +1,42 @@
-import { cn } from "@/lib/utils";
-import { NavLink } from "react-router-dom";
-
-const menuItems = [
-  { title: "Getting Started", path: "/" },
-  { title: "Project Setup", path: "/setup" },
-  { title: "Best Practices", path: "/best-practices" },
-  { title: "Model Selection", path: "/models" },
-  { title: "Templates", path: "/templates" },
-];
+import { NavLink } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function Sidebar() {
+  const routes = [
+    { path: '/', label: 'Setup' },
+    { path: '/docs', label: 'Documentation' },
+    { path: '/best-practices', label: 'Best Practices' },
+    { path: '/model-config', label: 'Model Configuration' },
+  ];
+
   return (
-    <div className="w-64 h-screen bg-white border-r border-gray-200 fixed left-0 top-0 overflow-y-auto">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-primary">CursorGuide</h1>
-      </div>
-      <nav className="px-4">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              cn(
-                "block px-4 py-2 my-1 rounded-md transition-colors",
-                isActive
-                  ? "bg-primary text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              )
-            }
-          >
-            {item.title}
-          </NavLink>
-        ))}
-      </nav>
+    <div className="hidden lg:block w-64 border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <ScrollArea className="h-[calc(100vh-3.5rem)] py-6">
+        <div className="space-y-4">
+          <div className="px-3 py-2">
+            <h2 className="mb-2 px-4 text-lg font-semibold">Navigation</h2>
+            <div className="space-y-1">
+              {routes.map((route) => (
+                <NavLink
+                  key={route.path}
+                  to={route.path}
+                  className={({ isActive }) =>
+                    cn(
+                      "block rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )
+                  }
+                >
+                  {route.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 }
