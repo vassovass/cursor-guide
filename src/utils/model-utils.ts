@@ -44,6 +44,24 @@ export const groupModelsByProvider = (models: AiModel[]): GroupedModels => {
   return grouped;
 };
 
+export const groupModelsByCapability = (models: AiModel[]): GroupedModels => {
+  const grouped: GroupedModels = {};
+  
+  models.forEach(model => {
+    const capabilities = model.capabilities.tasks || [];
+    capabilities.forEach(capability => {
+      if (!grouped[capability]) {
+        grouped[capability] = [];
+      }
+      if (!grouped[capability].find(m => m.model_id === model.model_id)) {
+        grouped[capability].push(model);
+      }
+    });
+  });
+  
+  return grouped;
+};
+
 export const saveModelApiKey = async (
   modelId: string,
   modelName: string,
