@@ -2,6 +2,8 @@ import { AiModel, GroupedModels, SupabaseAiModel } from '@/types/ai-models';
 import { supabase } from '@/integrations/supabase/client';
 
 export const transformSupabaseModel = (model: SupabaseAiModel): AiModel => {
+  const capabilities = model.capabilities as { tasks?: string[], features?: string[] } | null;
+  
   return {
     id: model.id,
     model_id: model.model_id,
@@ -10,8 +12,8 @@ export const transformSupabaseModel = (model: SupabaseAiModel): AiModel => {
     is_available: model.is_available,
     version: model.version,
     capabilities: {
-      tasks: Array.isArray(model.capabilities?.tasks) ? model.capabilities.tasks : [],
-      features: Array.isArray(model.capabilities?.features) ? model.capabilities.features : []
+      tasks: Array.isArray(capabilities?.tasks) ? capabilities.tasks : [],
+      features: Array.isArray(capabilities?.features) ? capabilities.features : []
     }
   };
 };
