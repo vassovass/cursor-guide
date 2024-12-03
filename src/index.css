@@ -109,3 +109,12 @@
     @apply ring-1 ring-primary/10 ring-inset;
   }
 }
+
+/* Menu styling overrides */
+[role="menuitem"] {
+  @apply cursor-pointer;
+}
+
+.dark [role="menu"] {
+  @apply bg-gray-900 border-gray-700;
+}
