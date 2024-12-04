@@ -13,7 +13,40 @@ serve(async (req) => {
   }
 
   try {
-    const { modelId, input, task } = await req.json();
+    const requestData = await req.json();
+    
+    // Handle package verification request
+    if (requestData.action === 'verify_package') {
+      const command = new Deno.Command("python3", {
+        args: ["-c", "import aisuite; print('AI Suite package version:', aisuite.__version__)"],
+      });
+
+      try {
+        const { stdout } = await command.output();
+        const output = new TextDecoder().decode(stdout);
+        console.log('AI Suite package verification:', output);
+        
+        return new Response(JSON.stringify({
+          status: 'success',
+          message: 'AI Suite package verified',
+          version: output.trim()
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (error) {
+        console.error('AI Suite package verification failed:', error);
+        return new Response(JSON.stringify({
+          status: 'error',
+          message: 'AI Suite package not available',
+          error: error.message
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    const { modelId, input, task } = requestData;
     console.log(`Processing request for model ${modelId}, task: ${task}`);
 
     // Get user's API key for the model
