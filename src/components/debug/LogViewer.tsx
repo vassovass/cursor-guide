@@ -1,14 +1,78 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Draggable from 'react-draggable';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LogViewerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface LogEntry {
+  level: 'INFO' | 'WARN' | 'ERROR';
+  message: string;
+  timestamp: string;
+}
+
 export function LogViewer({ isOpen, onClose }: LogViewerProps) {
+  const [logs, setLogs] = useState<LogEntry[]>([
+    {
+      level: 'INFO',
+      message: 'Application initialized',
+      timestamp: new Date().toISOString()
+    },
+    {
+      level: 'WARN',
+      message: 'No routes matched location "/logs"',
+      timestamp: new Date().toISOString()
+    },
+    {
+      level: 'ERROR',
+      message: 'Failed to load resource',
+      timestamp: new Date().toISOString()
+    }
+  ]);
+
+  useEffect(() => {
+    const testAiSuite = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-suite-process', {
+          body: { action: 'test' }
+        });
+
+        if (error) throw error;
+
+        setLogs(prev => [...prev, {
+          level: 'INFO',
+          message: 'AI Suite connection test completed',
+          timestamp: new Date().toISOString()
+        }]);
+
+        // Add detailed test results
+        if (data?.details) {
+          Object.entries(data.details).forEach(([key, value]) => {
+            setLogs(prev => [...prev, {
+              level: 'INFO',
+              message: `AI Suite ${key}: ${value}`,
+              timestamp: new Date().toISOString()
+            }]);
+          });
+        }
+      } catch (error) {
+        setLogs(prev => [...prev, {
+          level: 'ERROR',
+          message: `AI Suite test failed: ${error.message}`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
+    };
+
+    if (isOpen) {
+      testAiSuite();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -26,15 +90,18 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
         </div>
         <ScrollArea className="h-[calc(100%-4rem)] p-4">
           <div className="space-y-2 font-mono text-sm">
-            <div className="text-muted-foreground">
-              [INFO] Application initialized
-            </div>
-            <div className="text-yellow-500">
-              [WARN] No routes matched location "/logs"
-            </div>
-            <div className="text-red-500">
-              [ERROR] Failed to load resource
-            </div>
+            {logs.map((log, index) => (
+              <div
+                key={index}
+                className={`${
+                  log.level === 'ERROR' ? 'text-red-500' :
+                  log.level === 'WARN' ? 'text-yellow-500' :
+                  'text-muted-foreground'
+                }`}
+              >
+                [{log.level}] {log.message}
+              </div>
+            ))}
           </div>
         </ScrollArea>
       </div>
