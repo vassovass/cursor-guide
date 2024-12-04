@@ -21,31 +21,33 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
       level: 'INFO',
       message: 'Application initialized',
       timestamp: new Date().toISOString()
-    },
-    {
-      level: 'WARN',
-      message: 'No routes matched location "/logs"',
-      timestamp: new Date().toISOString()
-    },
-    {
-      level: 'ERROR',
-      message: 'Failed to load resource',
-      timestamp: new Date().toISOString()
     }
   ]);
 
   useEffect(() => {
     const testAiSuite = async () => {
       try {
+        console.log('Starting AI Suite test');
+        setLogs(prev => [...prev, {
+          level: 'INFO',
+          message: 'Starting AI Suite connection test...',
+          timestamp: new Date().toISOString()
+        }]);
+
         const { data, error } = await supabase.functions.invoke('ai-suite-process', {
           body: { action: 'test' }
         });
 
-        if (error) throw error;
+        console.log('AI Suite test response:', data);
+
+        if (error) {
+          console.error('AI Suite test error:', error);
+          throw error;
+        }
 
         setLogs(prev => [...prev, {
           level: 'INFO',
-          message: 'AI Suite connection test completed',
+          message: 'AI Suite connection test completed successfully',
           timestamp: new Date().toISOString()
         }]);
 
@@ -60,6 +62,7 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
           });
         }
       } catch (error) {
+        console.error('AI Suite test error:', error);
         setLogs(prev => [...prev, {
           level: 'ERROR',
           message: `AI Suite test failed: ${error.message}`,
