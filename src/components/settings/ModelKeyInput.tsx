@@ -46,13 +46,31 @@ export function ModelKeyInput({
     }
   };
 
+  const getProviderKeyName = () => {
+    const provider = model.provider.toLowerCase();
+    switch (provider) {
+      case 'openai':
+        return 'OpenAI API Key';
+      case 'anthropic':
+        return 'Anthropic API Key';
+      case 'google':
+        return 'Google API Key';
+      default:
+        return `${model.provider} API Key`;
+    }
+  };
+
   return (
-    <div className="space-y-2" data-testid={`api-key-item-${model.model_id}`}>
+    <div className="space-y-2 p-4 rounded-lg bg-muted/50" data-testid={`api-key-item-${model.model_id}`}>
       <div className="flex justify-between items-center">
         <div className="space-y-1">
           <label htmlFor={model.model_id} className="text-sm font-medium text-foreground">
-            API Key
+            {model.model_name}
           </label>
+          <p className="text-xs text-muted-foreground">
+            Provider: {model.provider}
+            {model.version && ` • Version: ${model.version}`}
+          </p>
         </div>
         <Button
           variant="ghost"
@@ -64,14 +82,13 @@ export function ModelKeyInput({
           {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </Button>
       </div>
-
       <div className="flex gap-2">
         <Input
           id={model.model_id}
           type={showKey ? "text" : "password"}
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter API Key"
+          placeholder={`Enter ${getProviderKeyName()}`}
           className="flex-1 bg-background text-foreground"
           data-testid={`api-key-input-${model.model_id}`}
         />
