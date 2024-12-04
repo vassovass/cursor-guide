@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchAvailableModels } from "@/utils/model-utils";
 import { useQuery } from "@tanstack/react-query";
-import { SimpleApiKeyManager } from "@/components/settings/SimpleApiKeyManager";
+import { SimpleApiKeyForm } from "@/components/settings/SimpleApiKeyForm";
 
 export function SetupPage() {
   const { data: models, isLoading, error } = useQuery({
@@ -25,7 +25,7 @@ export function SetupPage() {
           <CardTitle>AI Provider API Keys</CardTitle>
         </CardHeader>
         <CardContent>
-          <SimpleApiKeyManager models={models || []} />
+          <SimpleApiKeyForm models={models || []} />
         </CardContent>
       </Card>
     </div>
