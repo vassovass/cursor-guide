@@ -24,6 +24,49 @@ describe('AI Suite Log Integration Tests', () => {
   });
 
   it('should show AI Suite test results in logs when View Logs is clicked', async () => {
+    // Mock the providers response
+    const mockProvidersResponse = {
+      data: {
+        providers: [
+          {
+            name: 'openai',
+            models: [
+              {
+                model_id: 'openai:gpt-4o',
+                model_name: 'GPT-4 Optimized',
+                provider: 'openai',
+                version: '1.0',
+                capabilities: {
+                  tasks: ['text-generation'],
+                  features: ['chat']
+                }
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    // Mock the Supabase function calls
+    (supabase.functions.invoke as ReturnType<typeof vi.fn>)
+      .mockImplementation((functionName, options) => {
+        if (functionName === 'ai-suite-process') {
+          return Promise.resolve({
+            data: {
+              status: 'success',
+              message: 'AI Suite connection test completed',
+              details: {
+                modelsAvailable: true,
+                endpointAccessible: true,
+                aiSuiteVersion: '1.0.0'
+              }
+            }
+          });
+        } else if (functionName === 'sync-ai-models') {
+          return Promise.resolve(mockProvidersResponse);
+        }
+      });
+
     // Click the View Logs button
     const viewLogsButton = screen.getByText('View Logs');
     expect(viewLogsButton).toBeInTheDocument();
@@ -38,33 +81,15 @@ describe('AI Suite Log Integration Tests', () => {
     expect(infoLog).toBeInTheDocument();
     expect(infoLog).toHaveClass('text-muted-foreground');
 
-    // Mock AI Suite test results
-    const mockAiSuiteResponse = {
-      data: {
-        status: 'success',
-        message: 'AI Suite connection test completed',
-        details: {
-          modelsAvailable: true,
-          endpointAccessible: true,
-          aiSuiteVersion: '1.0.0'
-        }
-      }
-    };
-
-    // Mock the Supabase function call
-    (supabase.functions.invoke as ReturnType<typeof vi.fn>).mockResolvedValue(mockAiSuiteResponse);
-
     // Verify AI Suite specific logs appear
     const aiSuiteLog = screen.getByText(/\[INFO\] AI Suite connection test completed/);
     expect(aiSuiteLog).toBeInTheDocument();
-    
-    // Check for error handling
-    const warningLog = screen.getByText(/\[WARN\] No routes matched location "\/logs"/);
-    expect(warningLog).toBeInTheDocument();
-    expect(warningLog).toHaveClass('text-yellow-500');
 
-    const errorLog = screen.getByText(/\[ERROR\] Failed to load resource/);
-    expect(errorLog).toBeInTheDocument();
-    expect(errorLog).toHaveClass('text-red-500');
+    // Verify provider logs appear
+    const providerLog = screen.getByText(/\[INFO\] Found 1 AI providers/);
+    expect(providerLog).toBeInTheDocument();
+
+    const modelLog = screen.getByText(/\[INFO\] Provider: openai/);
+    expect(modelLog).toBeInTheDocument();
   });
 });

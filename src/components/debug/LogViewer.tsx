@@ -34,15 +34,13 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
           timestamp: new Date().toISOString()
         }]);
 
-        const { data, error } = await supabase.functions.invoke('ai-suite-process', {
+        // Test basic AI Suite connection
+        const { data: connectionData, error: connectionError } = await supabase.functions.invoke('ai-suite-process', {
           body: { action: 'test' }
         });
 
-        console.log('AI Suite test response:', data);
-
-        if (error) {
-          console.error('AI Suite test error:', error);
-          throw error;
+        if (connectionError) {
+          throw connectionError;
         }
 
         setLogs(prev => [...prev, {
@@ -51,9 +49,41 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
           timestamp: new Date().toISOString()
         }]);
 
+        // Fetch AI providers and models
+        const { data: providersData, error: providersError } = await supabase.functions.invoke('sync-ai-models', {
+          body: { action: 'fetch_providers' }
+        });
+
+        if (providersError) {
+          throw providersError;
+        }
+
+        setLogs(prev => [...prev, {
+          level: 'INFO',
+          message: `Found ${providersData.providers.length} AI providers`,
+          timestamp: new Date().toISOString()
+        }]);
+
+        // Log provider and model details
+        providersData.providers.forEach((provider: any) => {
+          setLogs(prev => [...prev, {
+            level: 'INFO',
+            message: `Provider: ${provider.name} (${provider.models.length} models)`,
+            timestamp: new Date().toISOString()
+          }]);
+
+          provider.models.forEach((model: any) => {
+            setLogs(prev => [...prev, {
+              level: 'INFO',
+              message: `  - Model: ${model.model_name} (${model.model_id})`,
+              timestamp: new Date().toISOString()
+            }]);
+          });
+        });
+
         // Add detailed test results
-        if (data?.details) {
-          Object.entries(data.details).forEach(([key, value]) => {
+        if (connectionData?.details) {
+          Object.entries(connectionData.details).forEach(([key, value]) => {
             setLogs(prev => [...prev, {
               level: 'INFO',
               message: `AI Suite ${key}: ${value}`,
