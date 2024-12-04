@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Github, Menu, Moon, Sun, ToggleRight } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Sidebar } from "./Sidebar";
 import { Toggle } from "@/components/ui/toggle";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
-import { RoadmapMenu } from "./RoadmapMenu";
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const [debugMode, setDebugMode] = useState(() => {
     const saved = localStorage.getItem("debugMode");
     return saved ? JSON.parse(saved) : false;
@@ -25,26 +26,18 @@ export function Header() {
   }, [debugMode]);
 
   return (
-    <header className="h-16 border-b border-gray-200 fixed top-0 right-0 left-0 lg:left-64 bg-background z-10">
+    <header className="h-16 border-b border-gray-200 fixed top-0 right-0 left-0 bg-background z-10">
       <div className="h-full flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64">
-              <Sidebar debugMode={debugMode} />
-            </SheetContent>
-          </Sheet>
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
           <input
             type="search"
             placeholder="Search documentation..."
             className="w-64 px-4 py-2 rounded-md border border-gray-200 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400"
           />
-          {debugMode && <RoadmapMenu />}
         </div>
         <div className="flex items-center gap-4">
           <Toggle

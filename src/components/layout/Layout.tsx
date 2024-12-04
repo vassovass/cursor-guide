@@ -17,6 +17,8 @@ export function Layout() {
     return saved ? JSON.parse(saved) : false;
   });
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem("debugMode");
     if (saved) {
@@ -26,10 +28,10 @@ export function Layout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex pt-16">
-        <div className="hidden lg:block">
-          <Sidebar debugMode={debugMode} />
+        <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-200 ease-in-out lg:block z-30`}>
+          <Sidebar debugMode={debugMode} onClose={() => setSidebarOpen(false)} />
         </div>
         <main className="flex-1 p-6">
           <Routes>
@@ -44,6 +46,12 @@ export function Layout() {
         </main>
       </div>
       <VersionDisplay />
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 lg:hidden z-20"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }
