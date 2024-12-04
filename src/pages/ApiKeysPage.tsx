@@ -3,30 +3,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAvailableModels } from "@/utils/model-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Key } from "lucide-react";
+import { Key, RefreshCw } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function ApiKeysPage() {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+  const [isSyncing, setIsSyncing] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: models, isLoading, error } = useQuery({
     queryKey: ['available-models'],
     queryFn: fetchAvailableModels
   });
 
-  if (isLoading) {
-    return <div className="p-8">Loading available AI providers...</div>;
-  }
-
-  if (error) {
-    return <div className="p-8 text-red-500">Error loading AI providers. Please try again.</div>;
-  }
-
-  // Get unique providers
-  const providers = [...new Set(models?.map(model => model.provider) || [])];
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      const response = await fetch('https://ilwkvpafhztplywtkkwp.supabase.co/functions/v1/sync-ai-models');
+      if (!response.ok) throw new Error('Failed to sync models');
+      
+      await queryClient.invalidateQueries({ queryKey: ['available-models'] });
+      toast({
+        title: "Success",
+        description: "AI models have been synced successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to sync AI models",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleSave = async (provider: string) => {
     try {
@@ -69,11 +83,24 @@ export function ApiKeysPage() {
     }
   };
 
+  // Get unique providers
+  const providers = [...new Set(models?.map(model => model.provider) || [])];
+
   return (
     <div className="container mx-auto p-8">
-      <div className="flex items-center gap-2 mb-8">
-        <Key className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold">API Keys</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-2">
+          <Key className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold">API Keys</h1>
+        </div>
+        <Button 
+          onClick={handleSync} 
+          disabled={isSyncing}
+          className="gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          {isSyncing ? 'Syncing...' : 'Sync Models'}
+        </Button>
       </div>
       
       <Card>
@@ -81,8 +108,20 @@ export function ApiKeysPage() {
           <CardTitle>Configure Provider API Keys</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {providers.length === 0 ? (
-            <div>No AI providers available. Please check back later.</div>
+          {isLoading ? (
+            <div>Loading available AI providers...</div>
+          ) : error ? (
+            <Alert variant="destructive">
+              <AlertDescription>
+                Error loading AI providers. Please try syncing to fetch the latest models.
+              </AlertDescription>
+            </Alert>
+          ) : providers.length === 0 ? (
+            <Alert>
+              <AlertDescription>
+                No AI providers available. Click the "Sync Models" button above to fetch the latest models.
+              </AlertDescription>
+            </Alert>
           ) : (
             providers.map(provider => (
               <div key={provider} className="p-4 border rounded-lg">
