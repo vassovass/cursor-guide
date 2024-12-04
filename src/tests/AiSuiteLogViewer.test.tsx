@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RoadmapMenu } from '@/components/layout/RoadmapMenu';
 import { BrowserRouter } from 'react-router-dom';
@@ -52,7 +52,7 @@ describe('AI Suite Log Integration Tests', () => {
     };
 
     // Mock the Supabase function call
-    (supabase.functions.invoke as jest.Mock).mockResolvedValue(mockAiSuiteResponse);
+    (supabase.functions.invoke as ReturnType<typeof vi.fn>).mockResolvedValue(mockAiSuiteResponse);
 
     // Verify AI Suite specific logs appear
     const aiSuiteLog = screen.getByText(/\[INFO\] AI Suite connection test completed/);
