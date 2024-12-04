@@ -12,7 +12,6 @@ export function Sidebar({ debugMode = false }: SidebarProps) {
     { path: '/', label: 'Setup' },
     { path: '/docs', label: 'Documentation' },
     { path: '/best-practices', label: 'Best Practices' },
-    { path: '/model-config', label: 'Model Configuration' },
   ];
 
   return (

@@ -5,7 +5,6 @@ import { VersionDisplay } from './VersionDisplay';
 import { SetupPage } from '@/pages/SetupPage';
 import { DocumentationPage } from '@/pages/DocumentationPage';
 import { BestPracticesPage } from '@/pages/BestPracticesPage';
-import { ModelConfigPage } from '@/pages/ModelConfigPage';
 import { RoadmapPage } from '@/pages/RoadmapPage';
 import { MetricsPage } from '@/pages/MetricsPage';
 import { SprintPage } from '@/pages/SprintPage';
@@ -36,7 +35,6 @@ export function Layout() {
             <Route path="/" element={<SetupPage />} />
             <Route path="/docs" element={<DocumentationPage />} />
             <Route path="/best-practices" element={<BestPracticesPage />} />
-            <Route path="/model-config" element={<ModelConfigPage />} />
             <Route path="/roadmap" element={<RoadmapPage />} />
             <Route path="/metrics" element={<MetricsPage />} />
             <Route path="/roadmap/sprint-:sprintNumber" element={<SprintPage />} />
