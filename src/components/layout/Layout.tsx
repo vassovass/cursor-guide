@@ -9,6 +9,7 @@ import { ModelConfigPage } from '@/pages/ModelConfigPage';
 import { RoadmapPage } from '@/pages/RoadmapPage';
 import { MetricsPage } from '@/pages/MetricsPage';
 import { SprintPage } from '@/pages/SprintPage';
+import { ApiKeysPage } from '@/pages/ApiKeysPage';
 import { useState, useEffect } from 'react';
 
 export function Layout() {
@@ -42,6 +43,7 @@ export function Layout() {
             <Route path="/roadmap" element={<RoadmapPage />} />
             <Route path="/metrics" element={<MetricsPage />} />
             <Route path="/roadmap/sprint-:sprintNumber" element={<SprintPage />} />
+            <Route path="/api-keys" element={<ApiKeysPage />} />
           </Routes>
         </main>
       </div>
