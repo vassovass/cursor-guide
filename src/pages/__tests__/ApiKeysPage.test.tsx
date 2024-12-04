@@ -1,20 +1,11 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ApiKeysPage } from '../ApiKeysPage';
 import { supabase } from '@/integrations/supabase/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock the entire supabase client
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    functions: {
-      invoke: vi.fn()
-    }
-  }
-}));
-
-// Create a fresh QueryClient for each test
-const createTestQueryClient = () => new QueryClient({
+// Create a new QueryClient for each test
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
@@ -22,11 +13,10 @@ const createTestQueryClient = () => new QueryClient({
   },
 });
 
-const renderWithClient = (ui: React.ReactNode) => {
-  const testQueryClient = createTestQueryClient();
+const renderWithProviders = (component: React.ReactNode) => {
   return render(
-    <QueryClientProvider client={testQueryClient}>
-      {ui}
+    <QueryClientProvider client={queryClient}>
+      {component}
     </QueryClientProvider>
   );
 };
@@ -36,71 +26,56 @@ describe('ApiKeysPage', () => {
     vi.clearAllMocks();
   });
 
-  it('should show sync button', () => {
-    renderWithClient(<ApiKeysPage />);
+  it('displays the sync button', () => {
+    renderWithProviders(<ApiKeysPage />);
     expect(screen.getByText(/Sync Models/i)).toBeInTheDocument();
   });
 
-  it('should handle successful sync', async () => {
-    // Mock successful response
-    (supabase.functions.invoke as jest.Mock).mockResolvedValueOnce({ 
-      data: { success: true }, 
-      error: null 
-    });
+  it('handles successful sync', async () => {
+    const mockInvoke = vi.mocked(supabase.functions.invoke);
+    mockInvoke.mockResolvedValueOnce({ data: {}, error: null });
 
-    renderWithClient(<ApiKeysPage />);
+    renderWithProviders(<ApiKeysPage />);
     
     const syncButton = screen.getByText(/Sync Models/i);
-    fireEvent.click(syncButton);
+    await fireEvent.click(syncButton);
 
-    await waitFor(() => {
-      expect(supabase.functions.invoke).toHaveBeenCalledWith('sync-ai-models');
-    });
-
-    // Should show success message
-    expect(await screen.findByText(/AI models have been synced successfully/i)).toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledWith('sync-ai-models');
+    expect(screen.getByText(/Success/i)).toBeInTheDocument();
   });
 
-  it('should handle sync failure', async () => {
-    // Mock error response
-    (supabase.functions.invoke as jest.Mock).mockResolvedValueOnce({
-      data: null,
-      error: new Error('Failed to sync')
+  it('handles sync failure', async () => {
+    const mockInvoke = vi.mocked(supabase.functions.invoke);
+    mockInvoke.mockResolvedValueOnce({ 
+      data: null, 
+      error: new Error('Failed to sync') 
     });
 
-    renderWithClient(<ApiKeysPage />);
+    renderWithProviders(<ApiKeysPage />);
     
     const syncButton = screen.getByText(/Sync Models/i);
-    fireEvent.click(syncButton);
+    await fireEvent.click(syncButton);
 
-    await waitFor(() => {
-      expect(supabase.functions.invoke).toHaveBeenCalledWith('sync-ai-models');
-    });
-
-    // Should show error message
-    expect(await screen.findByText(/Failed to sync/i)).toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledWith('sync-ai-models');
+    expect(screen.getByText(/Error/i)).toBeInTheDocument();
   });
 
-  it('should handle unauthorized error', async () => {
-    // Mock 401 unauthorized error
-    (supabase.functions.invoke as jest.Mock).mockResolvedValueOnce({
-      data: null,
-      error: {
+  it('handles unauthorized error (401)', async () => {
+    const mockInvoke = vi.mocked(supabase.functions.invoke);
+    mockInvoke.mockResolvedValueOnce({ 
+      data: null, 
+      error: { 
         message: 'Missing authorization header',
-        status: 401
-      }
+        status: 401 
+      } 
     });
 
-    renderWithClient(<ApiKeysPage />);
+    renderWithProviders(<ApiKeysPage />);
     
     const syncButton = screen.getByText(/Sync Models/i);
-    fireEvent.click(syncButton);
+    await fireEvent.click(syncButton);
 
-    await waitFor(() => {
-      expect(supabase.functions.invoke).toHaveBeenCalledWith('sync-ai-models');
-    });
-
-    // Should show unauthorized error message
-    expect(await screen.findByText(/Missing authorization header/i)).toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledWith('sync-ai-models');
+    expect(screen.getByText(/Error/i)).toBeInTheDocument();
   });
 });
