@@ -58,6 +58,10 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
           throw providersError;
         }
 
+        if (!providersData?.providers) {
+          throw new Error('No providers data received');
+        }
+
         setLogs(prev => [...prev, {
           level: 'INFO',
           message: `Found ${providersData.providers.length} AI providers`,
@@ -68,17 +72,19 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
         providersData.providers.forEach((provider: any) => {
           setLogs(prev => [...prev, {
             level: 'INFO',
-            message: `Provider: ${provider.name} (${provider.models.length} models)`,
+            message: `Provider: ${provider.name || 'Unknown'} (${provider.models?.length || 0} models)`,
             timestamp: new Date().toISOString()
           }]);
 
-          provider.models.forEach((model: any) => {
-            setLogs(prev => [...prev, {
-              level: 'INFO',
-              message: `  - Model: ${model.model_name} (${model.model_id})`,
-              timestamp: new Date().toISOString()
-            }]);
-          });
+          if (provider.models && Array.isArray(provider.models)) {
+            provider.models.forEach((model: any) => {
+              setLogs(prev => [...prev, {
+                level: 'INFO',
+                message: `  - Model: ${model.model_name || 'Unknown'} (${model.model_id || 'No ID'})`,
+                timestamp: new Date().toISOString()
+              }]);
+            });
+          }
         });
 
         // Add detailed test results
@@ -91,7 +97,7 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
             }]);
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('AI Suite test error:', error);
         setLogs(prev => [...prev, {
           level: 'ERROR',
