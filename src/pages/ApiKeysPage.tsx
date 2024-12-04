@@ -23,8 +23,9 @@ export function ApiKeysPage() {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      const response = await fetch('https://ilwkvpafhztplywtkkwp.supabase.co/functions/v1/sync-ai-models');
-      if (!response.ok) throw new Error('Failed to sync models');
+      const { data, error } = await supabase.functions.invoke('sync-ai-models');
+      
+      if (error) throw error;
       
       await queryClient.invalidateQueries({ queryKey: ['available-models'] });
       toast({
@@ -32,6 +33,7 @@ export function ApiKeysPage() {
         description: "AI models have been synced successfully.",
       });
     } catch (error) {
+      console.error('Sync error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to sync AI models",
