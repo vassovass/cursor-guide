@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Eye, EyeOff, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { AiModel } from '@/types/ai-models';
 import { saveModelApiKey } from '@/utils/model-utils';
 
@@ -13,7 +13,6 @@ interface SimpleApiKeyManagerProps {
 
 export function SimpleApiKeyManager({ models }: SimpleApiKeyManagerProps) {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
-  const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
   // Get unique providers
@@ -44,36 +43,15 @@ export function SimpleApiKeyManager({ models }: SimpleApiKeyManagerProps) {
     }
   };
 
-  const toggleVisibility = (provider: string) => {
-    setShowKeys(prev => ({ ...prev, [provider]: !prev[provider] }));
-  };
-
-  if (providers.length === 0) {
-    return <div>No AI providers available.</div>;
-  }
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {providers.map(provider => (
-        <div key={provider} className="space-y-4 p-6 bg-muted rounded-lg">
-          <div className="flex items-center justify-between">
-            <Label className="text-xl font-semibold">{provider}</Label>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleVisibility(provider)}
-            >
-              {showKeys[provider] ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-
-          <div className="flex gap-2">
+        <div key={provider} className="p-6 border rounded-lg bg-card">
+          <Label className="text-xl font-semibold mb-4 block">{provider}</Label>
+          
+          <div className="flex gap-4 mb-4">
             <Input
-              type={showKeys[provider] ? "text" : "password"}
+              type="password"
               value={apiKeys[provider] || ''}
               onChange={(e) => setApiKeys(prev => ({ 
                 ...prev, 
