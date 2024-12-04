@@ -50,7 +50,7 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
         }]);
 
         // Fetch AI providers and models
-        const { data: providersData, error: providersError } = await supabase.functions.invoke('sync-ai-models', {
+        const { data, error: providersError } = await supabase.functions.invoke('sync-ai-models', {
           body: { action: 'fetch_providers' }
         });
 
@@ -58,33 +58,41 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
           throw providersError;
         }
 
-        if (!providersData?.providers) {
-          throw new Error('No providers data received');
+        // Ensure we have a valid response with providers
+        if (!data || !data.models) {
+          console.log('Response data:', data); // Debug log
+          throw new Error('Invalid response format from sync-ai-models');
         }
+
+        const providers = new Map();
+        data.models.forEach((model: any) => {
+          if (!providers.has(model.provider)) {
+            providers.set(model.provider, []);
+          }
+          providers.get(model.provider).push(model);
+        });
 
         setLogs(prev => [...prev, {
           level: 'INFO',
-          message: `Found ${providersData.providers.length} AI providers`,
+          message: `Found ${providers.size} AI providers`,
           timestamp: new Date().toISOString()
         }]);
 
         // Log provider and model details
-        providersData.providers.forEach((provider: any) => {
+        providers.forEach((models: any[], provider: string) => {
           setLogs(prev => [...prev, {
             level: 'INFO',
-            message: `Provider: ${provider.name || 'Unknown'} (${provider.models?.length || 0} models)`,
+            message: `Provider: ${provider} (${models.length} models)`,
             timestamp: new Date().toISOString()
           }]);
 
-          if (provider.models && Array.isArray(provider.models)) {
-            provider.models.forEach((model: any) => {
-              setLogs(prev => [...prev, {
-                level: 'INFO',
-                message: `  - Model: ${model.model_name || 'Unknown'} (${model.model_id || 'No ID'})`,
-                timestamp: new Date().toISOString()
-              }]);
-            });
-          }
+          models.forEach((model: any) => {
+            setLogs(prev => [...prev, {
+              level: 'INFO',
+              message: `  - Model: ${model.model_name || 'Unknown'} (${model.model_id || 'No ID'})`,
+              timestamp: new Date().toISOString()
+            }]);
+          });
         });
 
         // Add detailed test results
