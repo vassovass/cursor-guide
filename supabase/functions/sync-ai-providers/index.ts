@@ -13,6 +13,23 @@ interface Provider {
   is_available: boolean;
 }
 
+async function fetchProviderFiles() {
+  try {
+    const response = await fetch('https://api.github.com/repos/vassovass/aisuite/contents/aisuite/providers');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch provider directory: ${response.statusText}`);
+    }
+    const files = await response.json();
+    return files.filter((file: any) => 
+      file.name.endsWith('_provider.py') && 
+      file.type === 'file'
+    );
+  } catch (error) {
+    console.error('[sync-ai-providers] Error fetching provider files:', error);
+    throw new Error('Failed to fetch provider files from repository');
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -20,38 +37,44 @@ serve(async (req) => {
   }
 
   try {
-    console.log('[sync-ai-providers] Starting provider sync from vassovass/aisuite pyproject.toml');
+    console.log('[sync-ai-providers] Starting provider sync from vassovass/aisuite providers directory');
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Fetch pyproject.toml from your forked repository's main branch
-    const repoUrl = 'https://raw.githubusercontent.com/vassovass/aisuite/main/pyproject.toml';
-    console.log('[sync-ai-providers] Fetching from:', repoUrl);
-
-    const response = await fetch(repoUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch pyproject.toml: ${response.statusText}`);
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Missing required environment variables');
     }
 
-    const tomlContent = await response.text();
-    const config = parse(tomlContent);
-    console.log('[sync-ai-providers] Parsed TOML:', config);
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Extract providers from the tool.poetry.extras section
-    const extras = config?.tool?.poetry?.extras || {};
-    const providers: Provider[] = Object.keys(extras)
-      .filter(key => !['tests', 'dev'].includes(key))
-      .map(providerId => ({
-        provider_id: providerId,
-        provider_name: providerId.charAt(0).toUpperCase() + providerId.slice(1),
+    // Fetch provider files from the repository
+    const providerFiles = await fetchProviderFiles();
+    console.log('[sync-ai-providers] Found provider files:', providerFiles);
+
+    // Transform provider files into our database format
+    const providers: Provider[] = providerFiles.map((file: any) => {
+      const providerName = file.name.replace('_provider.py', '');
+      return {
+        provider_id: providerName.toLowerCase(),
+        provider_name: providerName.charAt(0).toUpperCase() + providerName.slice(1),
         is_available: true
-      }));
+      };
+    });
 
-    console.log('[sync-ai-providers] Extracted providers:', providers);
+    // Add Perplexity provider if not already present
+    const perplexityProvider = providers.find(p => p.provider_id === 'perplexity');
+    if (!perplexityProvider) {
+      providers.push({
+        provider_id: 'perplexity',
+        provider_name: 'Perplexity',
+        is_available: true
+      });
+    }
 
-    // Upsert providers to database
+    console.log('[sync-ai-providers] Processed providers:', providers);
+
+    // Upsert providers to database with error handling
     const { data, error } = await supabase
       .from('ai_providers')
       .upsert(providers, {
@@ -59,14 +82,17 @@ serve(async (req) => {
         ignoreDuplicates: false
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error('[sync-ai-providers] Database error:', error);
+      throw error;
+    }
 
     console.log('[sync-ai-providers] Successfully synced providers:', data);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Providers synced successfully from vassovass/aisuite pyproject.toml', 
+        message: 'Providers synced successfully from vassovass/aisuite providers directory', 
         providers: data 
       }),
       { 
@@ -78,7 +104,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        details: error
       }),
       { 
         status: 500,
