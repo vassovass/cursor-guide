@@ -84,12 +84,29 @@
     @apply text-muted-foreground;
   }
 
-  /* Updated dropdown and accordion styling */
+  /* Dropdown and Select styling */
+  .select-trigger {
+    @apply w-full bg-background border border-input hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .select-content {
+    @apply bg-popover border border-border shadow-md rounded-md overflow-hidden;
+  }
+
+  .select-item {
+    @apply relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none 
+    bg-popover hover:bg-accent hover:text-accent-foreground 
+    data-[disabled]:pointer-events-none data-[disabled]:opacity-50
+    focus:bg-accent focus:text-accent-foreground;
+  }
+
+  /* Menu and Dropdown styling */
   .menu-item {
     @apply px-3 py-2 text-sm font-medium rounded-md transition-colors
-    data-[state=open]:bg-selection-background data-[state=open]:text-selection-foreground
-    hover:bg-selection-background hover:text-selection-foreground
-    focus:bg-selection-background focus:text-selection-foreground
+    bg-popover text-popover-foreground
+    data-[state=open]:bg-accent data-[state=open]:text-accent-foreground
+    hover:bg-accent hover:text-accent-foreground
+    focus:bg-accent focus:text-accent-foreground
     focus:outline-none;
   }
 
@@ -101,10 +118,10 @@
   }
 
   .selected-item {
-    @apply bg-selection-background text-selection-foreground;
+    @apply bg-accent text-accent-foreground;
   }
 
   .unselected-item {
-    @apply bg-popover text-foreground hover:bg-selection-background/60;
+    @apply bg-popover text-popover-foreground hover:bg-accent hover:text-accent-foreground;
   }
 }

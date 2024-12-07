@@ -20,15 +20,15 @@ export function ProviderSelect({ providers, selectedProvider, onProviderChange }
     <div className="space-y-2">
       <label className="text-sm font-medium">Select Provider</label>
       <Select value={selectedProvider} onValueChange={onProviderChange}>
-        <SelectTrigger className="w-full bg-background">
+        <SelectTrigger className="select-trigger">
           <SelectValue placeholder="Select an AI provider" />
         </SelectTrigger>
-        <SelectContent className="bg-popover border-border shadow-md">
+        <SelectContent className="select-content">
           {providers.map((provider) => (
             <SelectItem 
               key={provider.provider_id} 
               value={provider.provider_id}
-              className="cursor-pointer hover:bg-selection-background hover:text-selection-foreground"
+              className="select-item"
             >
               {provider.provider_name}
             </SelectItem>
