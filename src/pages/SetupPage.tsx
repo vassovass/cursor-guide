@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, FileJson, FileText, AlertCircle } from "lucide-react";
+import { ArrowRight, FileJson, FileText, AlertCircle, Key } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ModelConfigManager } from "@/components/ai/ModelConfigManager";
 
 export function SetupPage() {
   const [specification, setSpecification] = useState("");
@@ -104,18 +105,36 @@ export function SetupPage() {
           <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
           <AlertTitle>No AI Analysis Available</AlertTitle>
           <AlertDescription>
-            Please complete the project specification step to get AI-powered recommendations.
+            Please configure your AI API keys and complete the project specification to get AI-powered recommendations.
           </AlertDescription>
         </Alert>
       )}
       
-      <Tabs defaultValue="spec" className="space-y-4">
+      <Tabs defaultValue="api" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="api">
+            <Key className="h-4 w-4 mr-2" />
+            API Configuration
+          </TabsTrigger>
           <TabsTrigger value="spec">Project Specification</TabsTrigger>
           <TabsTrigger value="analysis">AI Analysis</TabsTrigger>
           <TabsTrigger value="cursor">Cursor.ai Rules</TabsTrigger>
           <TabsTrigger value="guide">Implementation Guide</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="api">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI API Configuration</CardTitle>
+              <CardDescription>
+                Configure your AI model preferences and API keys to enable AI-powered features
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ModelConfigManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="spec">
           <Card>
@@ -134,7 +153,6 @@ export function SetupPage() {
                   className="min-h-[300px] font-mono"
                   value={specification}
                   onChange={(e) => setSpecification(e.target.value)}
-                  readOnly
                 />
               </div>
             </CardContent>
