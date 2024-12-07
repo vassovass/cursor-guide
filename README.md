@@ -3,47 +3,20 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.0-blue.svg)](https://reactjs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Latest-green.svg)](https://supabase.io/)
 
 > An AI-powered development assistant that helps create and maintain robust applications with Cursor.ai
 
 ## 🚀 Features
 
-- 📝 Project specification processing and analysis
 - 🤖 AI-powered code generation and optimization
-- 📊 Sprint management and tracking
 - 🎨 Modern, responsive UI with dark mode support
-- 🔒 Secure authentication and data persistence
-- ⚡ Real-time updates and collaboration
-
-## 📈 Current Progress
-
-We are currently in **Sprint 1** of our development roadmap, focusing on the Specification Processor phase.
-
-### Completed
-- ✅ Basic project setup and configuration
-- ✅ Error handling infrastructure
-- ✅ Development environment setup
-- ✅ Logging system implementation
-- ✅ Sprint management interface
-
-### In Progress
-- 🔄 Specification input interface
-- 🔄 Basic parsing logic
-- 🔄 Initial best practices documentation
-
-### Coming Soon (Sprint 2)
-- 📋 Cursor.ai Integration Guide
-- 🛠️ Implementation Assistant
-- 🔍 Quality Assurance Features
-
-View our full roadmap [here](ROADMAP.md).
+- 🔍 Real-time debug logging system
+- 📝 Project specification processing
 
 ## 📋 Prerequisites
 
 - Node.js 18.x or later
 - npm or yarn package manager
-- Supabase account for backend services
 
 ## 🛠️ Installation
 
@@ -60,13 +33,7 @@ npm install
 yarn install
 ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env.local
-```
-Edit `.env.local` with your Supabase credentials.
-
-4. Start the development server:
+3. Start the development server:
 ```bash
 npm run dev
 # or
@@ -78,16 +45,11 @@ yarn dev
 - **Frontend**: React + TypeScript + Vite
 - **UI Components**: shadcn/ui + Tailwind CSS
 - **State Management**: TanStack Query
-- **Backend**: Supabase
-- **Testing**: Vitest + Testing Library
 
 ## 📚 Documentation
 
 - [Getting Started](docs/getting-started.md)
-- [Architecture Overview](docs/architecture.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
-- [API Documentation](docs/api/README.md)
 
 ## 🧪 Testing
 
@@ -102,12 +64,6 @@ yarn test
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -116,7 +72,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Cursor.ai](https://cursor.ai) for the AI capabilities
 - [shadcn/ui](https://ui.shadcn.com) for the beautiful components
-- [Supabase](https://supabase.io) for the backend infrastructure
 
 ## 📞 Support
 
