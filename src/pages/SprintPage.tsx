@@ -5,23 +5,45 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function SprintPage() {
   const { sprintNumber } = useParams();
+  
+  // Parse sprint number and validate it
+  const parsedSprintNumber = sprintNumber ? parseInt(sprintNumber, 10) : null;
 
   const { data: sprint, isLoading } = useQuery({
-    queryKey: ["sprint", sprintNumber],
+    queryKey: ["sprint", parsedSprintNumber],
     queryFn: async () => {
+      // Return early if sprint number is invalid
+      if (!parsedSprintNumber || isNaN(parsedSprintNumber)) {
+        throw new Error("Invalid sprint number");
+      }
+
       const { data, error } = await supabase
         .from("sprints")
         .select(`
           *,
           sprint_tasks (*)
         `)
-        .eq("sprint_number", sprintNumber)
+        .eq("sprint_number", parsedSprintNumber)
         .single();
       
       if (error) throw error;
       return data;
     },
+    // Disable the query if sprint number is invalid
+    enabled: Boolean(parsedSprintNumber && !isNaN(parsedSprintNumber)),
   });
+
+  // Show error state for invalid sprint number
+  if (!parsedSprintNumber || isNaN(parsedSprintNumber)) {
+    return (
+      <div 
+        className="text-center py-12 text-muted-foreground"
+        data-testid="sprint-page-invalid"
+      >
+        Invalid sprint number
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
