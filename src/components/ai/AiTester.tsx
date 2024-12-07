@@ -12,7 +12,7 @@ export function AiTester() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await processWithAI('default-model', input, 'test');
+    const response = await processWithAI('default-model', input, 'SPECIFICATION_ANALYZER');
     if (response) {
       setResult(response.output);
     }
