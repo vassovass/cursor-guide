@@ -13,6 +13,7 @@ interface Provider {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -25,31 +26,59 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch providers from AI Suite repository
-    const response = await fetch('https://api.github.com/repos/andrew-ng/ai-suite/contents/providers');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch providers: ${response.statusText}`);
+    // Define default providers in case GitHub fetch fails
+    const defaultProviders: Provider[] = [
+      {
+        provider_id: 'openai',
+        provider_name: 'OpenAI',
+        is_available: true
+      },
+      {
+        provider_id: 'anthropic',
+        provider_name: 'Anthropic',
+        is_available: true
+      }
+    ];
+
+    let providers: Provider[] = defaultProviders;
+
+    try {
+      // Attempt to fetch from GitHub with timeout
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(
+        'https://api.github.com/repos/andrew-ng/ai-suite/contents/providers',
+        { signal: controller.signal }
+      );
+      clearTimeout(timeout);
+
+      if (response.ok) {
+        const files = await response.json();
+        console.log('[sync-ai-providers] Fetched providers:', files);
+
+        providers = files
+          .filter((file: any) => file.name.endsWith('_provider.py'))
+          .map((file: any) => {
+            const providerName = file.name.replace('_provider.py', '');
+            return {
+              provider_id: providerName.toLowerCase(),
+              provider_name: providerName
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' '),
+              is_available: true
+            };
+          });
+      } else {
+        console.warn('[sync-ai-providers] Failed to fetch from GitHub, using default providers');
+      }
+    } catch (error) {
+      console.warn('[sync-ai-providers] Error fetching from GitHub:', error);
+      console.log('[sync-ai-providers] Using default providers');
     }
 
-    const files = await response.json();
-    console.log('[sync-ai-providers] Fetched providers:', files);
-
-    // Transform provider files into provider records
-    const providers: Provider[] = files
-      .filter((file: any) => file.name.endsWith('_provider.py'))
-      .map((file: any) => {
-        const providerName = file.name.replace('_provider.py', '');
-        return {
-          provider_id: providerName.toLowerCase(),
-          provider_name: providerName
-            .split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' '),
-          is_available: true
-        };
-      });
-
-    console.log('[sync-ai-providers] Transformed providers:', providers);
+    console.log('[sync-ai-providers] Providers to sync:', providers);
 
     // Upsert providers to database
     const { data, error } = await supabase
