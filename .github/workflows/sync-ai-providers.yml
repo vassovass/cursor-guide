@@ -1,0 +1,34 @@
+name: Sync AI Providers
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Invoke Sync Function
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          curl -X POST "${SUPABASE_URL}/functions/v1/sync-ai-models" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json"
+
+      - name: Create Pull Request if Changes
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: 'chore: sync AI providers from AI Suite'
+          title: 'Sync AI Providers from AI Suite'
+          body: 'Automated PR to sync AI providers from Andrew NG''s AI Suite'
+          branch: sync-ai-providers
+          delete-branch: true

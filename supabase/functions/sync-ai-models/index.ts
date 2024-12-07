@@ -8,15 +8,14 @@ const corsHeaders = {
 
 async function fetchAISuiteProviders() {
   try {
-    console.log('[sync-ai-models] Fetching AI Suite providers from repository');
+    console.log('[sync-ai-models] Fetching AI Suite providers');
     
-    // TODO: Replace with actual AI Suite repository URL when available
-    const aiSuiteApiUrl = 'https://api.github.com/repos/user/ai-suite/contents/providers';
+    // TODO: Replace with actual AI Suite API endpoint when available
+    const aiSuiteApiUrl = 'https://api.github.com/repos/andrew-ng/ai-suite/contents/providers';
     
     const response = await fetch(aiSuiteApiUrl, {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
-        // Add GitHub token if needed for private repo
       }
     });
 
@@ -43,23 +42,7 @@ async function fetchAISuiteProviders() {
     return providers;
   } catch (error) {
     console.error('[sync-ai-models] Error fetching AI Suite providers:', error);
-    // Fallback to default providers if fetch fails
-    return [
-      { 
-        provider_id: 'openai',
-        provider_name: 'OpenAI',
-        is_available: true,
-        source: 'default',
-        version: 'latest'
-      },
-      {
-        provider_id: 'anthropic',
-        provider_name: 'Anthropic',
-        is_available: true,
-        source: 'default',
-        version: 'latest'
-      }
-    ];
+    throw error;
   }
 }
 
@@ -75,7 +58,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    console.log('[sync-ai-models] Fetching providers from AI Suite');
     const providers = await fetchAISuiteProviders();
     
     console.log('[sync-ai-models] Syncing providers with database');
