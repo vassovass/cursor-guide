@@ -1,5 +1,6 @@
 import { SpecificationInput } from "@/components/specification/SpecificationInput";
 import { CursorIntegrationGuide } from "@/components/cursor/CursorIntegrationGuide";
+import { ApiKeyManager } from "@/components/api/ApiKeyManager";
 
 export default function IndexPage() {
   return (
@@ -9,6 +10,7 @@ export default function IndexPage() {
         Enter your project specifications below and let our AI assist you in structuring and analyzing them.
       </p>
       <div className="grid gap-8">
+        <ApiKeyManager />
         <SpecificationInput />
         <CursorIntegrationGuide />
       </div>
