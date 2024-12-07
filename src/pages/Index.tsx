@@ -1,4 +1,5 @@
 import { SpecificationInput } from "@/components/specification/SpecificationInput";
+import { CursorIntegrationGuide } from "@/components/cursor/CursorIntegrationGuide";
 
 export default function IndexPage() {
   return (
@@ -9,6 +10,7 @@ export default function IndexPage() {
       </p>
       <div className="grid gap-8">
         <SpecificationInput />
+        <CursorIntegrationGuide />
       </div>
     </div>
   );
