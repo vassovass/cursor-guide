@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, RefreshCw } from "lucide-react";
-import { ApiKeyCard } from "./ApiKeyCard";
 import { ConfigurationForm } from "./ConfigurationForm";
+import { ModelConfigHeader } from "./ModelConfigHeader";
+import { ExistingConfigs } from "./ExistingConfigs";
 import { useApiConfigs } from "@/hooks/use-api-configs";
 
 export function ModelConfigManager() {
@@ -74,32 +73,7 @@ export function ModelConfigManager() {
 
   return (
     <div className="space-y-6 p-6 bg-card border rounded-lg">
-      <div className="flex justify-between items-center">
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">AI Provider Configuration</h2>
-          <p className="text-muted-foreground">
-            Configure your AI provider API keys
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={syncProviders}
-          disabled={isSyncing}
-        >
-          {isSyncing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Syncing...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Sync Providers
-            </>
-          )}
-        </Button>
-      </div>
+      <ModelConfigHeader onSync={syncProviders} isSyncing={isSyncing} />
 
       {isLoading ? (
         <Alert>
@@ -114,23 +88,13 @@ export function ModelConfigManager() {
             onConfigSaved={fetchConfigs}
           />
 
-          {existingConfigs.length > 0 && (
-            <div className="mt-8 space-y-4">
-              <h3 className="text-lg font-semibold">Configured API Keys</h3>
-              <div className="grid gap-4">
-                {existingConfigs.map((config) => (
-                  <ApiKeyCard
-                    key={config.id}
-                    config={config}
-                    onDelete={async (id) => {
-                      await fetchConfigs();
-                    }}
-                    onUpdate={fetchConfigs}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          <ExistingConfigs
+            configs={existingConfigs}
+            onConfigDelete={async (id) => {
+              await fetchConfigs();
+            }}
+            onConfigUpdate={fetchConfigs}
+          />
         </>
       )}
     </div>
