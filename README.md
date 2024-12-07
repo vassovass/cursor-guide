@@ -4,21 +4,29 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.0-blue.svg)](https://reactjs.org/)
 
-> An AI-powered development assistant that helps create and maintain robust applications with Cursor.ai
+> A development assistant that helps process project specifications into Cursor.ai-friendly formats
 
-## 🚀 Features
+## 🎯 Purpose
 
-- 🤖 AI-powered code generation and optimization
-- 🎨 Modern, responsive UI with dark mode support
+CursorGuide helps developers create better applications with Cursor.ai by:
+1. Processing project specifications systematically
+2. Breaking them down into Cursor.ai-friendly chunks
+3. Providing best practices and guidance for implementation
+
+## ✨ Features
+
+- 📝 Project specification processing and analysis
+- 🤖 Cursor.ai integration guidance
+- 📚 Best practices implementation
 - 🔍 Real-time debug logging system
-- 📝 Project specification processing
+- 🎨 Modern, responsive UI with dark mode support
 
-## 📋 Prerequisites
+## 🛠️ Prerequisites
 
 - Node.js 18.x or later
 - npm or yarn package manager
 
-## 🛠️ Installation
+## 🚀 Getting Started
 
 1. Clone the repository:
 ```bash
@@ -46,19 +54,9 @@ yarn dev
 - **UI Components**: shadcn/ui + Tailwind CSS
 - **State Management**: TanStack Query
 
-## 📚 Documentation
+## 📖 Documentation
 
-- [Getting Started](docs/getting-started.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-
-## 🧪 Testing
-
-Run the test suite:
-```bash
-npm test
-# or
-yarn test
-```
+For detailed documentation and guides, see our [Documentation](docs/README.md).
 
 ## 🤝 Contributing
 
@@ -72,13 +70,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Cursor.ai](https://cursor.ai) for the AI capabilities
 - [shadcn/ui](https://ui.shadcn.com) for the beautiful components
-
-## 📞 Support
-
-For support, please:
-1. Check our [Documentation](docs/README.md)
-2. Search [Issues](https://github.com/yourusername/cursorguide/issues)
-3. Create a new issue if needed
 
 ---
 
