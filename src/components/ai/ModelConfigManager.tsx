@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,14 +10,46 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 export function ModelConfigManager() {
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableModels, setAvailableModels] = useState<any[]>([]);
   const { toast } = useToast();
 
   console.log("[ModelConfigManager] Component initialized");
+
+  useEffect(() => {
+    const fetchAvailableModels = async () => {
+      console.log("[ModelConfigManager] Fetching available AI models");
+      try {
+        const { data: models, error } = await supabase
+          .from('ai_suite_models')
+          .select('*')
+          .eq('is_available', true);
+
+        if (error) {
+          console.error("[ModelConfigManager] Error fetching models:", error);
+          throw error;
+        }
+
+        console.log("[ModelConfigManager] Available models:", models);
+        setAvailableModels(models || []);
+      } catch (error) {
+        console.error("[ModelConfigManager] Failed to fetch models:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load available models",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchAvailableModels();
+  }, [toast]);
 
   const handleModelChange = (value: string) => {
     console.log("[ModelConfigManager] Selected model changed:", value);
@@ -118,6 +150,14 @@ export function ModelConfigManager() {
         </p>
       </div>
 
+      {availableModels.length === 0 && (
+        <Alert>
+          <AlertDescription>
+            Loading available AI models...
+          </AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <label className="text-sm font-medium">Select Model</label>
@@ -126,10 +166,11 @@ export function ModelConfigManager() {
               <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="openai:gpt-4o">OpenAI GPT-4</SelectItem>
-              <SelectItem value="openai:gpt-4-turbo">OpenAI GPT-4 Turbo</SelectItem>
-              <SelectItem value="anthropic:claude-3-opus">Anthropic Claude 3 Opus</SelectItem>
-              <SelectItem value="anthropic:claude-3-sonnet">Anthropic Claude 3 Sonnet</SelectItem>
+              {availableModels.map((model) => (
+                <SelectItem key={model.model_id} value={model.model_id}>
+                  {model.model_name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -144,8 +185,15 @@ export function ModelConfigManager() {
           />
         </div>
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Configuring..." : "Save Configuration"}
+        <Button type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Configuring...
+            </>
+          ) : (
+            'Save Configuration'
+          )}
         </Button>
       </form>
     </div>
