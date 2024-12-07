@@ -4,47 +4,16 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, RefreshCw } from "lucide-react";
-import { ApiKeyInput } from "./ApiKeyInput";
-import { ProviderSelect } from "./ProviderSelect";
 import { ApiKeyCard } from "./ApiKeyCard";
-
-interface ApiKeyConfig {
-  id: string;
-  provider: string;
-  api_key: string;
-  last_verified_at: string;
-  notes?: string | null;
-}
+import { ConfigurationForm } from "./ConfigurationForm";
+import { useApiConfigs } from "@/hooks/use-api-configs";
 
 export function ModelConfigManager() {
-  const [apiKey, setApiKey] = useState("");
-  const [selectedProvider, setSelectedProvider] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [availableProviders, setAvailableProviders] = useState<any[]>([]);
-  const [existingConfigs, setExistingConfigs] = useState<ApiKeyConfig[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
-
-  const fetchConfigs = async () => {
-    try {
-      const { data: configs, error: configsError } = await supabase
-        .from('api_model_configs')
-        .select('id, provider, api_key, last_verified_at, notes')
-        .order('created_at', { ascending: false });
-
-      if (configsError) throw configsError;
-      setExistingConfigs(configs || []);
-    } catch (error) {
-      console.error("[ModelConfigManager] Error fetching configs:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load API configurations",
-        variant: "destructive",
-      });
-    }
-  };
+  const { configs: existingConfigs, isLoading, fetchConfigs } = useApiConfigs();
 
   const syncProviders = async () => {
     setIsSyncing(true);
@@ -57,7 +26,6 @@ export function ModelConfigManager() {
         description: "AI providers synced successfully",
       });
 
-      // Refresh providers list
       await fetchData();
     } catch (error) {
       console.error("[ModelConfigManager] Error syncing providers:", error);
@@ -89,71 +57,12 @@ export function ModelConfigManager() {
         description: "Failed to load configuration data",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [toast]);
-
-  const handleProviderChange = (value: string) => {
-    setSelectedProvider(value);
-  };
-
-  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setApiKey(e.target.value);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error("You must be logged in to configure AI providers");
-      }
-
-      if (!selectedProvider || !apiKey) {
-        throw new Error("Please provide both a provider and an API key");
-      }
-
-      const { error: configError } = await supabase
-        .from("api_model_configs")
-        .upsert({
-          user_id: user.id,
-          provider: selectedProvider,
-          model_id: 'default',
-          model_name: 'Default Model',
-          api_key: apiKey,
-          last_verified_at: new Date().toISOString(),
-        });
-
-      if (configError) throw configError;
-
-      await fetchConfigs();
-
-      toast({
-        title: "Success",
-        description: "API key configured successfully",
-      });
-
-      setApiKey("");
-      setSelectedProvider("");
-    } catch (error) {
-      console.error("[ModelConfigManager] Configuration error:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save configuration",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  }, []);
 
   if (authError) {
     return (
@@ -200,27 +109,10 @@ export function ModelConfigManager() {
         </Alert>
       ) : (
         <>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <ProviderSelect 
-              providers={availableProviders}
-              selectedProvider={selectedProvider}
-              onProviderChange={handleProviderChange}
-            />
-            <ApiKeyInput 
-              apiKey={apiKey}
-              onChange={handleApiKeyChange}
-            />
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving API Key...
-                </>
-              ) : (
-                'Save API Key'
-              )}
-            </Button>
-          </form>
+          <ConfigurationForm 
+            providers={availableProviders}
+            onConfigSaved={fetchConfigs}
+          />
 
           {existingConfigs.length > 0 && (
             <div className="mt-8 space-y-4">
