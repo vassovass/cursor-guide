@@ -15,6 +15,7 @@ export function ApiKeyManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    console.log("[ApiKeyManager] Starting API key submission");
 
     try {
       // Get the current user
@@ -34,8 +35,20 @@ export function ApiKeyManager() {
           last_verified_at: new Date().toISOString(),
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("[ApiKeyManager] Database error:", error);
+        
+        // Provide specific error messages based on error codes
+        if (error.code === '23505') {
+          throw new Error('An API key configuration already exists for this model. Please delete the existing configuration first.');
+        } else if (error.code === '23503') {
+          throw new Error('Invalid model configuration. Please check your settings.');
+        } else {
+          throw new Error(`Failed to save API key: ${error.message}`);
+        }
+      }
 
+      console.log("[ApiKeyManager] API key saved successfully");
       toast({
         title: "Success",
         description: "API key has been saved successfully.",
@@ -44,7 +57,7 @@ export function ApiKeyManager() {
       // Clear form
       setApiKey('');
     } catch (error) {
-      console.error('Error saving API key:', error);
+      console.error('[ApiKeyManager] Error saving API key:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to save API key. Please try again.",
