@@ -1,43 +1,81 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
-const Index = () => {
+export function Index() {
+  const [specification, setSpecification] = useState("");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSpecificationSubmit = () => {
+    if (!specification.trim()) {
+      toast({
+        title: "Specification Required",
+        description: "Please enter your project specification before proceeding.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Log the specification for debugging
+    console.log("Processing specification:", specification);
+
+    // Store specification in localStorage for now (MVP)
+    localStorage.setItem("project_specification", specification);
+    
+    toast({
+      title: "Specification Received",
+      description: "Your project specification has been processed. Proceeding to setup.",
+    });
+
+    // Navigate to setup page
+    navigate("/setup");
+  };
+
   return (
-    <div className="max-w-4xl">
-      <h1 className="text-4xl font-bold mb-6">Welcome to CursorGuide</h1>
-      <p className="text-xl text-gray-600 mb-8">
-        Your companion for building better desktop applications with Cursor.ai.
-        Follow our guide to implement best practices and create robust
-        applications.
-      </p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Quick Start</h2>
-          <p className="text-gray-600 mb-4">
-            Get up and running with Cursor.ai in minutes. Learn the basics and
-            start your first project.
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="space-y-6">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold tracking-tight">
+            CursorGuide Project Specification
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Enter your project specification below. We'll help you break it down
+            and create Cursor.ai-friendly implementation guidelines.
           </p>
-          <Button className="gap-2">
-            Start Tutorial
-            <ArrowRight className="w-4 h-4" />
-          </Button>
         </div>
-        
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Best Practices</h2>
-          <p className="text-gray-600 mb-4">
-            Learn how to structure your projects and follow best practices for
-            optimal results.
+
+        <Card className="p-6">
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Enter your project specification here..."
+              className="min-h-[200px] resize-y"
+              value={specification}
+              onChange={(e) => setSpecification(e.target.value)}
+              data-testid="specification-input"
+            />
+            <div className="flex justify-end">
+              <Button 
+                onClick={handleSpecificationSubmit}
+                size="lg"
+                data-testid="submit-specification"
+              >
+                Process Specification
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        <div className="text-sm text-muted-foreground text-center">
+          <p>
+            Your specification will be analyzed and broken down into
+            structured tasks following Cursor.ai best practices.
           </p>
-          <Button variant="outline" className="gap-2">
-            View Guide
-            <ArrowRight className="w-4 h-4" />
-          </Button>
         </div>
       </div>
     </div>
   );
-};
-
-export default Index;
+}
