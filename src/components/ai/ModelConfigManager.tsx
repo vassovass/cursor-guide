@@ -1,23 +1,19 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import { ModelSelect } from "./ModelSelect";
+import { ApiKeyInput } from "./ApiKeyInput";
 
 export function ModelConfigManager() {
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableModels, setAvailableModels] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
 
   console.log("[ModelConfigManager] Component initialized");
@@ -27,7 +23,13 @@ export function ModelConfigManager() {
       console.log("[ModelConfigManager] Starting to fetch available AI models");
       try {
         const { data: session } = await supabase.auth.getSession();
-        console.log("[ModelConfigManager] Auth session:", session ? "exists" : "none");
+        console.log("[ModelConfigManager] Auth session:", session?.session ? "exists" : "none");
+
+        if (!session?.session) {
+          setAuthError("Please sign in to configure AI models");
+          setIsLoading(false);
+          return;
+        }
 
         const { data: models, error } = await supabase
           .from('ai_suite_models')
@@ -48,6 +50,8 @@ export function ModelConfigManager() {
           description: "Failed to load available models. Please check your connection.",
           variant: "destructive",
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -67,30 +71,18 @@ export function ModelConfigManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    console.log("[ModelConfigManager] Starting configuration process", {
-      modelSelected: !!selectedModel,
-      apiKeyProvided: !!apiKey
-    });
-
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        console.error("[ModelConfigManager] Authentication error: No user found");
         throw new Error("You must be logged in to configure AI models");
       }
 
-      console.log("[ModelConfigManager] User authenticated:", { userId: user.id });
-
-      // Validate inputs
       if (!selectedModel || !apiKey) {
-        console.error("[ModelConfigManager] Validation error: Missing required fields");
         throw new Error("Please provide both a model and an API key");
       }
 
-      console.log("[ModelConfigManager] Saving API key configuration to database");
-      
-      // Save API key configuration
       const { error: configError } = await supabase
         .from("api_model_configs")
         .upsert({
@@ -101,34 +93,22 @@ export function ModelConfigManager() {
           last_verified_at: new Date().toISOString(),
         });
 
-      if (configError) {
-        console.error("[ModelConfigManager] Database error:", configError);
-        throw configError;
-      }
+      if (configError) throw configError;
 
-      console.log("[ModelConfigManager] Testing API connection");
-
-      // Test connection with the API
-      const { data: testResult, error: testError } = await supabase.functions.invoke("test-ai-connection", {
+      const { error: testError } = await supabase.functions.invoke("test-ai-connection", {
         body: { 
           modelId: selectedModel,
           apiKey: apiKey 
         }
       });
 
-      if (testError) {
-        console.error("[ModelConfigManager] Connection test failed:", testError);
-        throw testError;
-      }
-
-      console.log("[ModelConfigManager] Connection test successful:", testResult);
+      if (testError) throw testError;
 
       toast({
         title: "Success",
         description: "AI model configured successfully",
       });
 
-      // Clear form
       setApiKey("");
       setSelectedModel("");
     } catch (error) {
@@ -140,9 +120,16 @@ export function ModelConfigManager() {
       });
     } finally {
       setIsSubmitting(false);
-      console.log("[ModelConfigManager] Configuration process completed");
     }
   };
+
+  if (authError) {
+    return (
+      <Alert>
+        <AlertDescription>{authError}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6 bg-card border rounded-lg">
@@ -153,7 +140,7 @@ export function ModelConfigManager() {
         </p>
       </div>
 
-      {availableModels.length === 0 ? (
+      {isLoading ? (
         <Alert>
           <AlertDescription>
             Loading available AI models... If this persists, please refresh the page.
@@ -161,32 +148,15 @@ export function ModelConfigManager() {
         </Alert>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Select Model</label>
-            <Select value={selectedModel} onValueChange={handleModelChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a model" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableModels.map((model) => (
-                  <SelectItem key={model.model_id} value={model.model_id}>
-                    {model.model_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">API Key</label>
-            <Input
-              type="password"
-              placeholder="Enter your API key"
-              value={apiKey}
-              onChange={handleApiKeyChange}
-            />
-          </div>
-
+          <ModelSelect 
+            models={availableModels}
+            selectedModel={selectedModel}
+            onModelChange={handleModelChange}
+          />
+          <ApiKeyInput 
+            apiKey={apiKey}
+            onChange={handleApiKeyChange}
+          />
           <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? (
               <>
