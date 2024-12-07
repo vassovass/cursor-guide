@@ -21,62 +21,22 @@ serve(async (req) => {
   try {
     console.log('[sync-ai-providers] Starting provider sync');
     
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Define default providers in case GitHub fetch fails
-    const defaultProviders: Provider[] = [
-      {
-        provider_id: 'openai',
-        provider_name: 'OpenAI',
-        is_available: true
-      },
-      {
-        provider_id: 'anthropic',
-        provider_name: 'Anthropic',
-        is_available: true
-      }
+    // Define providers based on your screenshot
+    const providers: Provider[] = [
+      { provider_id: 'anthropic', provider_name: 'Anthropic', is_available: true },
+      { provider_id: 'aws', provider_name: 'AWS', is_available: true },
+      { provider_id: 'azure', provider_name: 'Azure', is_available: true },
+      { provider_id: 'google', provider_name: 'Google', is_available: true },
+      { provider_id: 'groq', provider_name: 'Groq', is_available: true },
+      { provider_id: 'huggingface', provider_name: 'Hugging Face', is_available: true },
+      { provider_id: 'openai', provider_name: 'OpenAI', is_available: true },
+      { provider_id: 'sambanova', provider_name: 'SambaNova', is_available: true },
+      { provider_id: 'xai', provider_name: 'xAI', is_available: true }
     ];
-
-    let providers: Provider[] = defaultProviders;
-
-    try {
-      // Attempt to fetch from GitHub with timeout
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
-
-      const response = await fetch(
-        'https://api.github.com/repos/andrew-ng/ai-suite/contents/providers',
-        { signal: controller.signal }
-      );
-      clearTimeout(timeout);
-
-      if (response.ok) {
-        const files = await response.json();
-        console.log('[sync-ai-providers] Fetched providers:', files);
-
-        providers = files
-          .filter((file: any) => file.name.endsWith('_provider.py'))
-          .map((file: any) => {
-            const providerName = file.name.replace('_provider.py', '');
-            return {
-              provider_id: providerName.toLowerCase(),
-              provider_name: providerName
-                .split('_')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' '),
-              is_available: true
-            };
-          });
-      } else {
-        console.warn('[sync-ai-providers] Failed to fetch from GitHub, using default providers');
-      }
-    } catch (error) {
-      console.warn('[sync-ai-providers] Error fetching from GitHub:', error);
-      console.log('[sync-ai-providers] Using default providers');
-    }
 
     console.log('[sync-ai-providers] Providers to sync:', providers);
 

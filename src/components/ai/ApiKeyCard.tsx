@@ -31,14 +31,13 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
 
   const handleDelete = async () => {
     try {
-      // First, create a historical record
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         throw new Error("You must be logged in to delete API keys");
       }
 
-      // Add to history
+      // First, create a historical record
       const { error: historyError } = await supabase
         .from('api_key_history')
         .insert({
@@ -49,7 +48,7 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
 
       if (historyError) throw historyError;
 
-      // Delete the config
+      // Then delete the config
       const { error: deleteError } = await supabase
         .from('api_model_configs')
         .delete()
@@ -63,7 +62,7 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
         description: "API key deleted successfully",
       });
     } catch (error) {
-      console.error("Error deleting API key:", error);
+      console.error("[ApiKeyCard] Error deleting API key:", error);
       toast({
         title: "Error",
         description: "Failed to delete API key",
@@ -88,7 +87,7 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
         description: "Notes updated successfully",
       });
     } catch (error) {
-      console.error("Error updating notes:", error);
+      console.error("[ApiKeyCard] Error updating notes:", error);
       toast({
         title: "Error",
         description: "Failed to update notes",
