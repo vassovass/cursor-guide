@@ -24,8 +24,11 @@ export function ModelConfigManager() {
 
   useEffect(() => {
     const fetchAvailableModels = async () => {
-      console.log("[ModelConfigManager] Fetching available AI models");
+      console.log("[ModelConfigManager] Starting to fetch available AI models");
       try {
+        const { data: session } = await supabase.auth.getSession();
+        console.log("[ModelConfigManager] Auth session:", session ? "exists" : "none");
+
         const { data: models, error } = await supabase
           .from('ai_suite_models')
           .select('*')
@@ -36,13 +39,13 @@ export function ModelConfigManager() {
           throw error;
         }
 
-        console.log("[ModelConfigManager] Available models:", models);
+        console.log("[ModelConfigManager] Fetched models:", models);
         setAvailableModels(models || []);
       } catch (error) {
         console.error("[ModelConfigManager] Failed to fetch models:", error);
         toast({
           title: "Error",
-          description: "Failed to load available models",
+          description: "Failed to load available models. Please check your connection.",
           variant: "destructive",
         });
       }
@@ -150,52 +153,52 @@ export function ModelConfigManager() {
         </p>
       </div>
 
-      {availableModels.length === 0 && (
+      {availableModels.length === 0 ? (
         <Alert>
           <AlertDescription>
-            Loading available AI models...
+            Loading available AI models... If this persists, please refresh the page.
           </AlertDescription>
         </Alert>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Model</label>
+            <Select value={selectedModel} onValueChange={handleModelChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a model" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableModels.map((model) => (
+                  <SelectItem key={model.model_id} value={model.model_id}>
+                    {model.model_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">API Key</label>
+            <Input
+              type="password"
+              placeholder="Enter your API key"
+              value={apiKey}
+              onChange={handleApiKeyChange}
+            />
+          </div>
+
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Configuring...
+              </>
+            ) : (
+              'Save Configuration'
+            )}
+          </Button>
+        </form>
       )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Select Model</label>
-          <Select value={selectedModel} onValueChange={handleModelChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a model" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableModels.map((model) => (
-                <SelectItem key={model.model_id} value={model.model_id}>
-                  {model.model_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">API Key</label>
-          <Input
-            type="password"
-            placeholder="Enter your API key"
-            value={apiKey}
-            onChange={handleApiKeyChange}
-          />
-        </div>
-
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Configuring...
-            </>
-          ) : (
-            'Save Configuration'
-          )}
-        </Button>
-      </form>
     </div>
   );
 }
