@@ -18,9 +18,9 @@ export function SpecificationInput() {
 
   const parseSpecification = async (text: string) => {
     const result = await processWithAI(
-      'gpt-4',
+      'gpt-4o-mini',
       text,
-      'parseSpecification',
+      'SPECIFICATION_ANALYZER',
       { format: 'structured' }
     );
     return result;
