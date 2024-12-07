@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -125,7 +125,11 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+      <SheetContent 
+        side="right" 
+        className="w-[400px] sm:w-[540px]"
+        aria-describedby="log-viewer-description"
+      >
         <SheetHeader className="flex flex-row items-center justify-between">
           <SheetTitle>Debug Logs</SheetTitle>
           <Button
@@ -133,10 +137,14 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
             size="icon"
             onClick={clearLogs}
             title="Clear logs"
+            aria-label="Clear all logs"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </SheetHeader>
+        <SheetDescription id="log-viewer-description">
+          Real-time application logs and debug information
+        </SheetDescription>
         <ScrollArea className="h-[calc(100vh-100px)] mt-4">
           <div className="space-y-1">
             {logs.map((log, index) => (
