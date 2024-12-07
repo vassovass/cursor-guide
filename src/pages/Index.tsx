@@ -4,6 +4,7 @@ import { ApiKeyManager } from "@/components/api/ApiKeyManager";
 import { ModelConfigManager } from "@/components/ai/ModelConfigManager";
 import { RoadmapMenu } from "@/components/layout/RoadmapMenu";
 import { LogViewer } from "@/components/debug/LogViewer";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 export default function IndexPage() {
