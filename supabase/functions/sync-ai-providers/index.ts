@@ -19,26 +19,32 @@ serve(async (req) => {
   }
 
   try {
-    console.log('[sync-ai-providers] Starting provider sync');
+    console.log('[sync-ai-providers] Starting provider sync from vassovass/aisuite');
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Define providers based on your screenshot
-    const providers: Provider[] = [
-      { provider_id: 'anthropic', provider_name: 'Anthropic', is_available: true },
-      { provider_id: 'aws', provider_name: 'AWS', is_available: true },
-      { provider_id: 'azure', provider_name: 'Azure', is_available: true },
-      { provider_id: 'google', provider_name: 'Google', is_available: true },
-      { provider_id: 'groq', provider_name: 'Groq', is_available: true },
-      { provider_id: 'huggingface', provider_name: 'Hugging Face', is_available: true },
-      { provider_id: 'openai', provider_name: 'OpenAI', is_available: true },
-      { provider_id: 'sambanova', provider_name: 'SambaNova', is_available: true },
-      { provider_id: 'xai', provider_name: 'xAI', is_available: true }
-    ];
+    // Fetch providers from your forked repository's main branch
+    const repoUrl = 'https://raw.githubusercontent.com/vassovass/aisuite/main/providers.json';
+    console.log('[sync-ai-providers] Fetching from:', repoUrl);
 
-    console.log('[sync-ai-providers] Providers to sync:', providers);
+    const response = await fetch(repoUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch providers: ${response.statusText}`);
+    }
+
+    const providersData = await response.json();
+    console.log('[sync-ai-providers] Fetched providers:', providersData);
+
+    // Transform the data into our database format
+    const providers: Provider[] = providersData.map((p: any) => ({
+      provider_id: p.id || p.provider_id,
+      provider_name: p.name || p.provider_name,
+      is_available: p.is_available !== false
+    }));
+
+    console.log('[sync-ai-providers] Transformed providers:', providers);
 
     // Upsert providers to database
     const { data, error } = await supabase
@@ -55,7 +61,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Providers synced successfully', 
+        message: 'Providers synced successfully from vassovass/aisuite', 
         providers: data 
       }),
       { 
