@@ -29,3 +29,7 @@ verify_jwt = true
 [[functions]]
 name = "ai-suite-process"
 verify_jwt = true
+
+[[functions]]
+name = "test-ai-connection"
+verify_jwt = true
