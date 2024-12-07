@@ -88,28 +88,31 @@ gantt
       </div>
 
       <div className="prose dark:prose-invert max-w-none 
-        prose-h1:text-[2em] prose-h1:font-semibold prose-h1:border-b prose-h1:border-[#30363d] prose-h1:pb-[0.3em] prose-h1:mb-[1em]
-        prose-h2:text-[1.5em] prose-h2:font-semibold prose-h2:border-b prose-h2:border-[#30363d] prose-h2:pb-[0.3em] prose-h2:mb-[1em]
+        prose-headings:mt-6 prose-headings:mb-4
+        prose-h1:text-[2em] prose-h1:font-semibold prose-h1:border-b prose-h1:border-border/40 prose-h1:pb-[0.3em]
+        prose-h2:text-[1.5em] prose-h2:font-semibold prose-h2:border-b prose-h2:border-border/40 prose-h2:pb-[0.3em]
         prose-h3:text-[1.25em] prose-h3:font-semibold
         prose-h4:text-[1em] prose-h4:font-semibold
         prose-h5:text-[0.875em] prose-h5:font-semibold
         prose-h6:text-[0.85em] prose-h6:font-semibold
-        prose-p:text-base prose-p:leading-[1.75] prose-p:mb-4
-        prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+        prose-p:my-4 prose-p:leading-[1.75]
+        prose-a:text-primary hover:prose-a:underline
         prose-strong:font-semibold
-        prose-code:bg-[#30363d] prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:text-sm
-        prose-pre:bg-[#30363d] prose-pre:rounded-md prose-pre:p-4
-        prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4
-        prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-4
-        prose-li:mb-1
-        prose-blockquote:border-l-4 prose-blockquote:border-[#30363d] prose-blockquote:pl-4 prose-blockquote:italic
-        prose-hr:border-[#30363d]
-        [&_input[type='checkbox']]:appearance-none [&_input[type='checkbox']]:bg-transparent 
-        [&_input[type='checkbox']]:border [&_input[type='checkbox']]:border-[#30363d] 
-        [&_input[type='checkbox']]:rounded [&_input[type='checkbox']]:w-4 [&_input[type='checkbox']]:h-4 
+        prose-code:before:content-[''] prose-code:after:content-['']
+        prose-code:bg-muted prose-code:rounded prose-code:px-[0.4em] prose-code:py-[0.2em] prose-code:text-sm
+        prose-pre:bg-muted prose-pre:rounded-lg prose-pre:p-4
+        prose-ul:my-4 prose-ul:list-disc prose-ul:pl-8
+        prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-8
+        prose-li:my-2
+        prose-blockquote:border-l-4 prose-blockquote:border-border/40 prose-blockquote:pl-4 prose-blockquote:italic
+        prose-hr:border-border/40
+        [&_input[type='checkbox']]:h-4 [&_input[type='checkbox']]:w-4 
+        [&_input[type='checkbox']]:border [&_input[type='checkbox']]:border-border/40 
+        [&_input[type='checkbox']]:rounded [&_input[type='checkbox']]:bg-transparent
         [&_input[type='checkbox']]:mr-2 [&_input[type='checkbox']]:align-middle
-        [&_input[type='checkbox']]:checked:bg-blue-500 [&_input[type='checkbox']]:checked:border-blue-500
-        [&_input[type='checkbox']]:focus:ring-2 [&_input[type='checkbox']]:focus:ring-blue-500
+        [&_input[type='checkbox']]:checked:bg-primary [&_input[type='checkbox']]:checked:border-primary
+        [&_input[type='checkbox']]:focus:ring-2 [&_input[type='checkbox']]:focus:ring-primary/50
+        [&_task-list-item]:list-none [&_task-list-item]:-ml-4
         " 
         data-testid="roadmap-content">
         {roadmapContent && (
