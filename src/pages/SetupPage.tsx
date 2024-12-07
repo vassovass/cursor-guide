@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
@@ -7,12 +7,36 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, FileJson, FileText } from "lucide-react";
+import { ArrowRight, FileJson, FileText, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function SetupPage() {
   const [specification, setSpecification] = useState("");
-  const [cursorRules, setCursorRules] = useState("");
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Load saved specification and analysis from localStorage
+    const savedSpec = localStorage.getItem("projectSpecification");
+    const savedAnalysis = localStorage.getItem("aiAnalysis");
+    
+    if (savedSpec) {
+      setSpecification(savedSpec);
+    }
+    
+    if (savedAnalysis) {
+      try {
+        setAiAnalysis(JSON.parse(savedAnalysis));
+      } catch (error) {
+        console.error("Error parsing saved analysis:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load saved analysis",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [toast]);
 
   const handleSpecificationSubmit = async () => {
     if (!specification.trim()) {
@@ -25,7 +49,7 @@ export function SetupPage() {
     }
 
     // Here we'll process the specification and generate cursor rules
-    const processedRules = generateCursorRules(specification);
+    const processedRules = generateCursorRules(specification, aiAnalysis);
     setCursorRules(processedRules);
 
     toast({
@@ -34,10 +58,10 @@ export function SetupPage() {
     });
   };
 
-  const generateCursorRules = (spec: string) => {
-    // This is a simplified example - in reality, you'd want more sophisticated processing
+  const generateCursorRules = (spec: string, analysis: any) => {
+    // Generate rules based on both specification and AI analysis
     const rules = {
-      projectName: "Generated Project",
+      projectName: "AI-Enhanced Project",
       codeStyle: {
         framework: "React",
         typescript: true,
@@ -48,6 +72,11 @@ export function SetupPage() {
         pattern: "modular",
         dataFlow: "unidirectional",
         stateManagement: "context + reducers"
+      },
+      aiIntegration: {
+        model: analysis?.model || "default",
+        capabilities: analysis?.capabilities || [],
+        recommendations: analysis?.recommendations || []
       },
       conventions: {
         naming: {
@@ -67,11 +96,22 @@ export function SetupPage() {
 
   return (
     <div className="container mx-auto space-y-6 py-8">
-      <h1 className="text-3xl font-bold">Project Specification Guide</h1>
+      <h1 className="text-3xl font-bold">Project Setup Guide</h1>
+      
+      {!aiAnalysis && (
+        <Alert variant="warning">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No AI Analysis Available</AlertTitle>
+          <AlertDescription>
+            Please complete the project specification step to get AI-powered recommendations.
+          </AlertDescription>
+        </Alert>
+      )}
       
       <Tabs defaultValue="spec" className="space-y-4">
         <TabsList>
           <TabsTrigger value="spec">Project Specification</TabsTrigger>
+          <TabsTrigger value="analysis">AI Analysis</TabsTrigger>
           <TabsTrigger value="cursor">Cursor.ai Rules</TabsTrigger>
           <TabsTrigger value="guide">Implementation Guide</TabsTrigger>
         </TabsList>
@@ -81,7 +121,7 @@ export function SetupPage() {
             <CardHeader>
               <CardTitle>Project Specification</CardTitle>
               <CardDescription>
-                Enter your project requirements and let AI help refine them for Cursor.ai
+                Review and edit your project requirements
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -89,19 +129,35 @@ export function SetupPage() {
                 <Label htmlFor="project-spec">Project Description</Label>
                 <Textarea
                   id="project-spec"
-                  placeholder="Describe your project in detail, including features, architecture preferences, and any specific requirements..."
+                  placeholder="Your project specification will appear here..."
                   className="min-h-[300px] font-mono"
                   value={specification}
                   onChange={(e) => setSpecification(e.target.value)}
+                  readOnly
                 />
               </div>
-              <Button 
-                onClick={handleSpecificationSubmit}
-                className="w-full"
-              >
-                Process Specification
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analysis">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Analysis Results</CardTitle>
+              <CardDescription>
+                Review the AI-generated insights and recommendations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+                {aiAnalysis ? (
+                  <pre className="font-mono text-sm whitespace-pre-wrap">
+                    {JSON.stringify(aiAnalysis, null, 2)}
+                  </pre>
+                ) : (
+                  <p className="text-muted-foreground">No analysis results available</p>
+                )}
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>
@@ -111,27 +167,23 @@ export function SetupPage() {
             <CardHeader>
               <CardTitle>Generated Cursor.ai Rules</CardTitle>
               <CardDescription>
-                These rules will guide Cursor.ai in understanding and implementing your project
+                AI-enhanced rules to guide Cursor.ai in implementing your project
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <Button 
+                onClick={handleSpecificationSubmit}
+                className="w-full"
+                disabled={!aiAnalysis}
+              >
+                Generate Cursor.ai Rules
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
               <ScrollArea className="h-[400px] w-full rounded-md border p-4">
                 <pre className="font-mono text-sm">
-                  {cursorRules || "Process your specification to generate Cursor.ai rules"}
+                  {aiAnalysis ? "Click Generate to create Cursor.ai rules" : "Complete AI analysis first"}
                 </pre>
               </ScrollArea>
-              {cursorRules && (
-                <div className="flex gap-4">
-                  <Button variant="outline" className="w-full">
-                    <FileJson className="mr-2 h-4 w-4" />
-                    Download .cursorrules
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Download Documentation
-                  </Button>
-                </div>
-              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -141,31 +193,39 @@ export function SetupPage() {
             <CardHeader>
               <CardTitle>Implementation Guide</CardTitle>
               <CardDescription>
-                Follow these steps to implement your project with Cursor.ai
+                AI-powered recommendations for implementing your project
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">1. Project Setup</h3>
+                {aiAnalysis ? (
+                  <>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold">1. Project Setup</h3>
+                      <p className="text-muted-foreground">
+                        {aiAnalysis.setup || "Follow the recommended project structure and configuration."}
+                      </p>
+                    </div>
+                    <Separator />
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold">2. AI Integration</h3>
+                      <p className="text-muted-foreground">
+                        {aiAnalysis.integration || "Implement the suggested AI features and endpoints."}
+                      </p>
+                    </div>
+                    <Separator />
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold">3. Implementation Steps</h3>
+                      <p className="text-muted-foreground">
+                        {aiAnalysis.steps || "Follow the AI-recommended implementation sequence."}
+                      </p>
+                    </div>
+                  </>
+                ) : (
                   <p className="text-muted-foreground">
-                    Create a new project directory and place the generated .cursorrules file in the root.
+                    Complete the AI analysis to get personalized implementation guidance.
                   </p>
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">2. Documentation Structure</h3>
-                  <p className="text-muted-foreground">
-                    Set up the recommended documentation structure in your project.
-                  </p>
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">3. Implementation</h3>
-                  <p className="text-muted-foreground">
-                    Follow the generated documentation to implement your project features.
-                  </p>
-                </div>
+                )}
               </div>
             </CardContent>
           </Card>
