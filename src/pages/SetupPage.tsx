@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRight, FileJson, FileText, AlertCircle } from "lucide-react";
@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 export function SetupPage() {
   const [specification, setSpecification] = useState("");
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [cursorRules, setCursorRules] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -99,8 +100,8 @@ export function SetupPage() {
       <h1 className="text-3xl font-bold">Project Setup Guide</h1>
       
       {!aiAnalysis && (
-        <Alert variant="warning">
-          <AlertCircle className="h-4 w-4" />
+        <Alert variant="default" className="border-yellow-500 bg-yellow-50 dark:bg-yellow-900/10">
+          <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
           <AlertTitle>No AI Analysis Available</AlertTitle>
           <AlertDescription>
             Please complete the project specification step to get AI-powered recommendations.
