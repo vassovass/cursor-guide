@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import { Skeleton } from "@/components/ui/skeleton";
 import ReactMarkdown from 'react-markdown';
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, Circle } from "lucide-react";
 
 export function RoadmapPage() {
   const mermaidRef = useRef<HTMLDivElement>(null);
@@ -26,17 +28,15 @@ export function RoadmapPage() {
   });
 
   useEffect(() => {
-    // Fetch and parse ROADMAP.md content
-    console.log('Fetching ROADMAP.md content...');
     fetch('/ROADMAP.md')
-      .then(response => {
-        console.log('ROADMAP.md response:', response.status);
-        return response.text();
-      })
+      .then(response => response.text())
       .then(content => {
-        console.log('ROADMAP.md content length:', content.length);
-        console.log('First 100 characters:', content.substring(0, 100));
-        setRoadmapContent(content);
+        // Update the content to mark completed items
+        const updatedContent = content
+          .replace('- Specification input interface', '- ✓ Specification input interface')
+          .replace('- Basic parsing logic', '- ✓ Basic parsing logic')
+          .replace('- Initial best practices documentation', '- ✓ Initial best practices documentation');
+        setRoadmapContent(updatedContent);
       })
       .catch(error => {
         console.error('Error loading roadmap:', error);
@@ -85,6 +85,9 @@ gantt
         <h1 className="text-3xl font-bold mb-4 text-foreground" data-testid="roadmap-title">
           Project Roadmap
         </h1>
+        <Badge variant="secondary" className="mb-6">
+          Sprint 1 - All Tasks Completed
+        </Badge>
       </div>
 
       <div className="prose dark:prose-invert max-w-none 
@@ -112,8 +115,7 @@ gantt
         [&_input[type='checkbox']]:mr-2 [&_input[type='checkbox']]:align-middle
         [&_input[type='checkbox']]:checked:bg-primary [&_input[type='checkbox']]:checked:border-primary
         [&_input[type='checkbox']]:focus:ring-2 [&_input[type='checkbox']]:focus:ring-primary/50
-        [&_task-list-item]:list-none [&_task-list-item]:-ml-4
-        " 
+        [&_task-list-item]:list-none [&_task-list-item]:-ml-4" 
         data-testid="roadmap-content">
         {roadmapContent && (
           <ReactMarkdown>
@@ -137,8 +139,9 @@ gantt
             className="border rounded-lg p-6 bg-card text-card-foreground roadmap-sprint-card"
             data-testid={`roadmap-sprint-${sprint.sprint_number}`}
           >
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
+            <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center gap-2">
               Sprint {sprint.sprint_number}: {sprint.title}
+              {sprint.sprint_number === 1 && <CheckCircle2 className="text-primary h-5 w-5" />}
             </h2>
             <div className="space-y-4">
               {sprint.sprint_tasks.map((task) => (
@@ -147,17 +150,20 @@ gantt
                   className="flex items-center justify-between p-3 bg-muted rounded roadmap-task-item"
                   data-testid={`roadmap-task-${task.id}`}
                 >
-                  <span className="text-foreground">{task.title}</span>
-                  <span 
-                    className={`px-2 py-1 rounded text-sm ${
-                      task.status === "completed" 
-                        ? "bg-primary text-primary-foreground" 
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
+                  <span className="text-foreground flex items-center gap-2">
+                    {task.status === 'completed' ? (
+                      <CheckCircle2 className="text-primary h-4 w-4" />
+                    ) : (
+                      <Circle className="text-secondary h-4 w-4" />
+                    )}
+                    {task.title}
+                  </span>
+                  <Badge 
+                    variant={task.status === "completed" ? "default" : "secondary"}
                     data-testid={`roadmap-task-status-${task.id}`}
                   >
                     {task.status}
-                  </span>
+                  </Badge>
                 </div>
               ))}
             </div>
