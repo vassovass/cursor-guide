@@ -9,31 +9,7 @@ export function SprintPage() {
   // Parse sprint number and validate it
   const parsedSprintNumber = sprintNumber ? parseInt(sprintNumber, 10) : null;
 
-  const { data: sprint, isLoading } = useQuery({
-    queryKey: ["sprint", parsedSprintNumber],
-    queryFn: async () => {
-      // Return early if sprint number is invalid
-      if (!parsedSprintNumber || isNaN(parsedSprintNumber)) {
-        throw new Error("Invalid sprint number");
-      }
-
-      const { data, error } = await supabase
-        .from("sprints")
-        .select(`
-          *,
-          sprint_tasks (*)
-        `)
-        .eq("sprint_number", parsedSprintNumber)
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    // Disable the query if sprint number is invalid
-    enabled: Boolean(parsedSprintNumber && !isNaN(parsedSprintNumber)),
-  });
-
-  // Show error state for invalid sprint number
+  // Show error state for invalid sprint number immediately
   if (!parsedSprintNumber || isNaN(parsedSprintNumber)) {
     return (
       <div 
@@ -45,12 +21,41 @@ export function SprintPage() {
     );
   }
 
+  const { data: sprint, isLoading, error } = useQuery({
+    queryKey: ["sprint", parsedSprintNumber],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sprints")
+        .select(`
+          *,
+          sprint_tasks (*)
+        `)
+        .eq("sprint_number", parsedSprintNumber)
+        .single();
+      
+      if (error) throw error;
+      if (!data) throw new Error("Sprint not found");
+      return data;
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="space-y-6" data-testid="sprint-page-loading">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-32 w-full" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div 
+        className="text-center py-12 text-muted-foreground"
+        data-testid="sprint-page-error"
+      >
+        {error instanceof Error ? error.message : "Failed to load sprint"}
       </div>
     );
   }
