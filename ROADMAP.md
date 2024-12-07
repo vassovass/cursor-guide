@@ -1,70 +1,91 @@
-# CursorGuide Project Roadmap
+# CursorGuide MVP Roadmap
 
-## Project Overview
-CursorGuide helps developers create better applications with Cursor.ai by:
-1. Processing project specifications systematically
-2. Breaking them down into Cursor.ai-friendly chunks
-3. Providing best practices and guidance for implementation
+## Core Mission
+Build a web application that helps developers effectively process project specifications into Cursor.ai-friendly formats using AI-powered analysis.
 
-## Core Features
+## MVP Phases
 
-### 1. Specification Processing (Current Sprint)
-- [x] Basic project setup
-- [x] Development environment configuration
-- [x] Error handling infrastructure
-- [x] Logging system implementation
-- [ ] Project specification input interface
-- [ ] Specification parser and analyzer
-- [ ] Structured output generator
-- [ ] Basic validation system
+### Phase 1: Core AI Integration (Current Focus)
+- [x] Project setup and environment configuration
+- [x] Basic UI implementation with shadcn/ui
+- [x] Error handling and logging system
+- [ ] AI Suite integration setup
+  - [ ] API key management system
+  - [ ] Secure key storage in Supabase
+  - [ ] AI model configuration
+  - [ ] Connection testing
+- [ ] Basic specification input interface
+  - [ ] Rich text editor for specifications
+  - [ ] File upload support
+  - [ ] Basic validation
 
-### 2. Cursor.ai Integration Guide
-- [ ] Best practices documentation
-- [ ] Code organization templates
+### Phase 2: Specification Processing
+- [ ] AI-powered specification analysis
+  - [ ] Natural language processing
+  - [ ] Requirements extraction
+  - [ ] Dependencies identification
+  - [ ] Technical stack recommendations
+- [ ] Structured output generation
+  - [ ] JSON format conversion
+  - [ ] Cursor.ai rules generation
+  - [ ] Project structure recommendations
+
+### Phase 3: Cursor.ai Integration
 - [ ] .cursorrules file generator
-- [ ] Project structure recommendations
+  - [ ] Template system
+  - [ ] Custom rules support
+  - [ ] Validation checks
+- [ ] Project structure generator
+  - [ ] Directory structure
+  - [ ] Base file templates
+  - [ ] Configuration files
 
-### 3. Implementation Assistant
-- [ ] Step-by-step guidance
-- [ ] Code snippet templates
-- [ ] Common patterns library
-- [ ] Error prevention guidelines
-
-### 4. Best Practices Enforcement
-- [ ] Validation checks
-- [ ] Best practices enforcement
-- [ ] Common pitfalls detection
-- [ ] Performance optimization tips
-
-### 5. Documentation Generation
-- [ ] Project documentation templates
-- [ ] Integration examples
-- [ ] Troubleshooting guides
-- [ ] Best practices documentation
-
-## Technical Implementation
-
-### Frontend
-- [x] React + TypeScript setup
-- [x] Tailwind CSS configuration
-- [x] shadcn/ui components integration
-- [x] React Query implementation
-
-### Core Features
-- [x] Debug logging system
-- [ ] Specification processor
-- [ ] AI integration
+### Phase 4: Best Practices Implementation
 - [ ] Documentation generator
+  - [ ] README.md templates
+  - [ ] API documentation
+  - [ ] Component documentation
+- [ ] Code organization templates
+  - [ ] File naming conventions
+  - [ ] Directory structure
+  - [ ] Import/export patterns
+
+## Technical Implementation Details
+
+### AI Integration
+Using AI Suite by Andrew Ng's team for:
+- Specification analysis
+- Code structure recommendations
+- Best practices enforcement
+- Documentation generation
+
+#### AI Models Configuration
+- Primary: GPT-4o for comprehensive analysis
+- Fallback: GPT-4o-mini for faster processing
+- Custom fine-tuned models for specific tasks
+
+### Security & API Management
+- Secure API key storage in Supabase
+- Key rotation support
+- Usage monitoring
+- Rate limiting implementation
 
 ### Quality Standards
+- [x] TypeScript implementation
 - [x] Error handling
-- [x] Responsive design
-- [ ] Accessibility compliance
+- [x] Logging system
+- [ ] Unit testing
+- [ ] Integration testing
 - [ ] Performance optimization
 
-## Launch Checklist
-- [ ] Complete core features
-- [ ] Comprehensive testing
-- [ ] Documentation completion
-- [ ] Performance optimization
-- [ ] User feedback integration
+## Post-MVP Features
+- Advanced project templates
+- Custom rule creation
+- Team collaboration features
+- Version control integration
+- Analytics dashboard
+
+## Current Status
+- Phase 1 in progress
+- Core infrastructure implemented
+- Working on AI integration setup
