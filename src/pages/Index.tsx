@@ -23,24 +23,29 @@ export function Index() {
     }
 
     try {
-      // Process the specification with AI
+      // Process the specification with AI using the SPECIFICATION_ANALYZER prompt
       const analysisResult = await processWithAI(
-        "gpt-4", // Default model for now
+        "gpt-4o-mini",
         specification,
-        "analyze_specification"
+        "SPECIFICATION_ANALYZER",
+        {
+          projectType: "web-application",
+          framework: "react",
+          aiIntegration: true
+        }
       );
 
       if (!analysisResult) {
         throw new Error("Failed to process specification");
       }
 
-      // Store the analysis result in Supabase
+      // Store the analysis result
       const { error } = await supabase
         .from("ai_analysis_results")
         .insert({
           specification,
           analysis: analysisResult,
-          model_id: "gpt-4",
+          model_id: "gpt-4o-mini",
         });
 
       if (error) throw error;

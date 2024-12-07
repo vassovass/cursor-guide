@@ -8,80 +8,19 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const requestData = await req.json();
-    console.log('Received request:', requestData);
+    const { modelId, input, systemPrompt, task } = await req.json();
+    console.log(`Processing ${task} with system prompt`);
 
-    // Handle test action specifically
-    if (requestData.action === 'test') {
-      console.log('Running AI Suite connection test');
-      
-      // Return a successful test response
-      return new Response(
-        JSON.stringify({
-          status: 'success',
-          message: 'AI Suite connection test completed',
-          details: {
-            modelsAvailable: true,
-            endpointAccessible: true,
-            aiSuiteVersion: '1.0.0'
-          }
-        }), 
-        { 
-          headers: { 
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          },
-          status: 200
-        }
-      );
-    }
-
-    // Handle package verification request
-    if (requestData.action === 'verify_package') {
-      const command = new Deno.Command("python3", {
-        args: ["-c", "import aisuite; print('AI Suite package version:', aisuite.__version__)"],
-      });
-
-      try {
-        const { stdout } = await command.output();
-        const output = new TextDecoder().decode(stdout);
-        console.log('AI Suite package verification:', output);
-        
-        return new Response(JSON.stringify({
-          status: 'success',
-          message: 'AI Suite package verified',
-          version: output.trim()
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      } catch (error) {
-        console.error('AI Suite package verification failed:', error);
-        return new Response(JSON.stringify({
-          status: 'error',
-          message: 'AI Suite package not available',
-          error: error.message
-        }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    }
-
-    const { modelId, input, task } = requestData;
-    console.log(`Processing request for model ${modelId}, task: ${task}`);
-
-    // Get user's API key for the model
+    // Get API key configuration
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get the API key configuration for this model
     const { data: modelConfig, error: configError } = await supabase
       .from('api_model_configs')
       .select('api_key')
@@ -92,12 +31,12 @@ serve(async (req) => {
       throw new Error('API key not configured for this model');
     }
 
-    // Set up environment for aisuite
+    // Initialize environment
     const provider = modelId.split(':')[0].toUpperCase();
     const envKey = `${provider}_API_KEY`;
     Deno.env.set(envKey, modelConfig.api_key);
 
-    // Initialize Python environment and aisuite
+    // Process with AI using system prompt
     const command = new Deno.Command("python3", {
       args: ["-c", `
 import aisuite as ai
@@ -106,8 +45,8 @@ import os
 
 client = ai.Client()
 messages = [
-    {"role": "system", "content": "You are a helpful AI assistant."},
-    {"role": "user", "content": "${input}"}
+    {"role": "system", "content": """${systemPrompt}"""},
+    {"role": "user", "content": """${input}"""}
 ]
 
 response = client.chat.completions.create(
