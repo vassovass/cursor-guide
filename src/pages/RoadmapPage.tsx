@@ -77,7 +77,7 @@ gantt
         </h1>
       </div>
 
-      <div className="prose dark:prose-invert max-w-none">
+      <div className="prose prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-em:text-muted-foreground prose-code:text-primary prose-pre:bg-muted prose-pre:text-muted-foreground prose-blockquote:text-muted-foreground prose-blockquote:border-l-primary dark:prose-invert max-w-none" data-testid="roadmap-content">
         <ReactMarkdown>
           {roadmapContent}
         </ReactMarkdown>
