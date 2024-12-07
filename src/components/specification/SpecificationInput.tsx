@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAiProcessing } from '@/hooks/use-ai-processing';
 import { Loader2 } from 'lucide-react';
@@ -17,13 +17,20 @@ export function SpecificationInput() {
   const { processWithAI, isProcessing } = useAiProcessing();
 
   const parseSpecification = async (text: string) => {
-    const result = await processWithAI(
-      'gpt-4o-mini',
-      text,
-      'SPECIFICATION_ANALYZER',
-      { format: 'structured' }
-    );
-    return result;
+    try {
+      console.log('Starting AI processing with text:', text);
+      const result = await processWithAI(
+        'gpt-4o-mini',
+        text,
+        'SPECIFICATION_ANALYZER',
+        { format: 'structured' }
+      );
+      console.log('AI processing result:', result);
+      return result;
+    } catch (error) {
+      console.error('Error in parseSpecification:', error);
+      throw error;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,8 +38,10 @@ export function SpecificationInput() {
     setIsSubmitting(true);
 
     try {
+      console.log('Starting submission process');
       // First parse the specification
       const parsedData = await parseSpecification(content);
+      console.log('Parsed data:', parsedData);
 
       // Then save both the original and parsed data
       const { error } = await supabase
@@ -103,7 +112,7 @@ export function SpecificationInput() {
           <Button 
             type="submit" 
             className="w-full"
-            disabled={isSubmitting || isProcessing}
+            disabled={isSubmitting || isProcessing || !title || !content}
           >
             {(isSubmitting || isProcessing) ? (
               <>
