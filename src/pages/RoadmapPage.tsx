@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import { Skeleton } from "@/components/ui/skeleton";
+import ReactMarkdown from 'react-markdown';
 
 export function RoadmapPage() {
   const mermaidRef = useRef<HTMLDivElement>(null);
+  const [roadmapContent, setRoadmapContent] = useState<string>("");
 
   const { data: sprints, isLoading: sprintsLoading } = useQuery({
     queryKey: ["sprints"],
@@ -22,6 +24,14 @@ export function RoadmapPage() {
       return data;
     },
   });
+
+  useEffect(() => {
+    // Fetch and parse ROADMAP.md content
+    fetch('/ROADMAP.md')
+      .then(response => response.text())
+      .then(content => setRoadmapContent(content))
+      .catch(error => console.error('Error loading roadmap:', error));
+  }, []);
 
   useEffect(() => {
     if (mermaidRef.current && sprints) {
@@ -60,14 +70,17 @@ gantt
   }
 
   return (
-    <div className="space-y-8" data-testid="roadmap-container">
+    <div className="space-y-8 max-w-4xl mx-auto px-4" data-testid="roadmap-container">
       <div className="roadmap-header">
         <h1 className="text-3xl font-bold mb-4 text-foreground" data-testid="roadmap-title">
           Project Roadmap
         </h1>
-        <p className="text-muted-foreground mb-8" data-testid="roadmap-description">
-          Complete project timeline and milestone tracking
-        </p>
+      </div>
+
+      <div className="prose dark:prose-invert max-w-none">
+        <ReactMarkdown>
+          {roadmapContent}
+        </ReactMarkdown>
       </div>
 
       <div className="border rounded-lg p-6 bg-card text-card-foreground" data-testid="roadmap-chart-container">
