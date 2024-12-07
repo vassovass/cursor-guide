@@ -31,11 +31,15 @@ export function RoadmapPage() {
     fetch('/ROADMAP.md')
       .then(response => response.text())
       .then(content => {
-        // Update the content to mark completed items
+        // Update the content to mark completed items with checkmarks
         const updatedContent = content
-          .replace('- Specification input interface', '- ✓ Specification input interface')
+          .replace('- Project specification input interface', '- ✓ Project specification input interface')
           .replace('- Basic parsing logic', '- ✓ Basic parsing logic')
-          .replace('- Initial best practices documentation', '- ✓ Initial best practices documentation');
+          .replace('- Initial best practices documentation', '- ✓ Initial best practices documentation')
+          .replace('- Basic project setup', '- ✓ Basic project setup')
+          .replace('- Error handling infrastructure', '- ✓ Error handling infrastructure')
+          .replace('- Development environment configuration', '- ✓ Development environment configuration')
+          .replace('- Logging system implementation', '- ✓ Logging system implementation');
         setRoadmapContent(updatedContent);
       })
       .catch(error => {
@@ -85,8 +89,8 @@ gantt
         <h1 className="text-3xl font-bold mb-4 text-foreground" data-testid="roadmap-title">
           Project Roadmap
         </h1>
-        <Badge variant="secondary" className="mb-6">
-          Sprint 1 - All Tasks Completed
+        <Badge variant="success" className="mb-6">
+          Sprint 1 - Foundation Complete
         </Badge>
       </div>
 
@@ -108,14 +112,7 @@ gantt
         prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-8
         prose-li:my-2
         prose-blockquote:border-l-4 prose-blockquote:border-border/40 prose-blockquote:pl-4 prose-blockquote:italic
-        prose-hr:border-border/40
-        [&_input[type='checkbox']]:h-4 [&_input[type='checkbox']]:w-4 
-        [&_input[type='checkbox']]:border [&_input[type='checkbox']]:border-border/40 
-        [&_input[type='checkbox']]:rounded [&_input[type='checkbox']]:bg-transparent
-        [&_input[type='checkbox']]:mr-2 [&_input[type='checkbox']]:align-middle
-        [&_input[type='checkbox']]:checked:bg-primary [&_input[type='checkbox']]:checked:border-primary
-        [&_input[type='checkbox']]:focus:ring-2 [&_input[type='checkbox']]:focus:ring-primary/50
-        [&_task-list-item]:list-none [&_task-list-item]:-ml-4" 
+        prose-hr:border-border/40" 
         data-testid="roadmap-content">
         {roadmapContent && (
           <ReactMarkdown>
@@ -141,7 +138,7 @@ gantt
           >
             <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center gap-2">
               Sprint {sprint.sprint_number}: {sprint.title}
-              {sprint.sprint_number === 1 && <CheckCircle2 className="text-primary h-5 w-5" />}
+              {sprint.status === 'completed' && <CheckCircle2 className="text-green-500 h-5 w-5" />}
             </h2>
             <div className="space-y-4">
               {sprint.sprint_tasks.map((task) => (
@@ -152,14 +149,15 @@ gantt
                 >
                   <span className="text-foreground flex items-center gap-2">
                     {task.status === 'completed' ? (
-                      <CheckCircle2 className="text-primary h-4 w-4" />
+                      <CheckCircle2 className="text-green-500 h-4 w-4" />
                     ) : (
                       <Circle className="text-secondary h-4 w-4" />
                     )}
                     {task.title}
                   </span>
                   <Badge 
-                    variant={task.status === "completed" ? "default" : "secondary"}
+                    variant={task.status === "completed" ? "success" : "secondary"}
+                    className={task.status === "completed" ? "bg-green-500" : ""}
                     data-testid={`roadmap-task-status-${task.id}`}
                   >
                     {task.status}
