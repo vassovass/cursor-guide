@@ -3,15 +3,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { Loader2, Key } from "lucide-react";
 import { ApiKeyInput } from "./ApiKeyInput";
 import { ProviderSelect } from "./ProviderSelect";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface ApiKeyConfig {
+  id: string;
+  provider: string;
+  api_key: string;
+  last_verified_at: string;
+}
 
 export function ModelConfigManager() {
   const [apiKey, setApiKey] = useState("");
   const [selectedProvider, setSelectedProvider] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableProviders, setAvailableProviders] = useState<any[]>([]);
+  const [existingConfigs, setExistingConfigs] = useState<ApiKeyConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -19,20 +28,30 @@ export function ModelConfigManager() {
   console.log("[ModelConfigManager] Component initialized");
 
   useEffect(() => {
-    const fetchProviders = async () => {
+    const fetchData = async () => {
       try {
-        const { data: providers, error } = await supabase
+        // Fetch providers
+        const { data: providers, error: providersError } = await supabase
           .from('ai_providers')
           .select('*')
           .eq('is_available', true);
 
-        if (error) throw error;
+        if (providersError) throw providersError;
         setAvailableProviders(providers || []);
+
+        // Fetch existing API key configs
+        const { data: configs, error: configsError } = await supabase
+          .from('api_model_configs')
+          .select('id, provider, api_key, last_verified_at')
+          .order('created_at', { ascending: false });
+
+        if (configsError) throw configsError;
+        setExistingConfigs(configs || []);
       } catch (error) {
-        console.error("[ModelConfigManager] Error fetching providers:", error);
+        console.error("[ModelConfigManager] Error fetching data:", error);
         toast({
           title: "Error",
-          description: "Failed to load available providers",
+          description: "Failed to load configuration data",
           variant: "destructive",
         });
       } finally {
@@ -40,7 +59,7 @@ export function ModelConfigManager() {
       }
     };
 
-    fetchProviders();
+    fetchData();
   }, [toast]);
 
   const handleProviderChange = (value: string) => {
@@ -51,6 +70,12 @@ export function ModelConfigManager() {
   const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("[ModelConfigManager] API key input changed");
     setApiKey(e.target.value);
+  };
+
+  const maskApiKey = (key: string) => {
+    if (!key) return '';
+    const lastFour = key.slice(-4);
+    return `••••••••${lastFour}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,6 +105,14 @@ export function ModelConfigManager() {
         });
 
       if (configError) throw configError;
+
+      // Refresh the configs list
+      const { data: newConfigs } = await supabase
+        .from('api_model_configs')
+        .select('id, provider, api_key, last_verified_at')
+        .order('created_at', { ascending: false });
+
+      setExistingConfigs(newConfigs || []);
 
       toast({
         title: "Success",
@@ -124,27 +157,53 @@ export function ModelConfigManager() {
           </AlertDescription>
         </Alert>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <ProviderSelect 
-            providers={availableProviders}
-            selectedProvider={selectedProvider}
-            onProviderChange={handleProviderChange}
-          />
-          <ApiKeyInput 
-            apiKey={apiKey}
-            onChange={handleApiKeyChange}
-          />
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving API Key...
-              </>
-            ) : (
-              'Save API Key'
-            )}
-          </Button>
-        </form>
+        <>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <ProviderSelect 
+              providers={availableProviders}
+              selectedProvider={selectedProvider}
+              onProviderChange={handleProviderChange}
+            />
+            <ApiKeyInput 
+              apiKey={apiKey}
+              onChange={handleApiKeyChange}
+            />
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving API Key...
+                </>
+              ) : (
+                'Save API Key'
+              )}
+            </Button>
+          </form>
+
+          {existingConfigs.length > 0 && (
+            <div className="mt-8 space-y-4">
+              <h3 className="text-lg font-semibold">Configured API Keys</h3>
+              <div className="grid gap-4">
+                {existingConfigs.map((config) => (
+                  <Card key={config.id}>
+                    <CardContent className="flex items-center justify-between p-4">
+                      <div className="space-y-1">
+                        <p className="font-medium">{config.provider}</p>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Key className="mr-2 h-4 w-4" />
+                          {maskApiKey(config.api_key)}
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Last verified: {new Date(config.last_verified_at).toLocaleDateString()}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
