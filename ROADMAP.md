@@ -5,7 +5,7 @@ Build a web application that helps developers effectively process project specif
 
 ## MVP Phases
 
-### Phase 1: Core Infrastructure (Completed)
+### Phase 1: Core Infrastructure (Partially Completed)
 - [x] Project setup and environment configuration
 - [x] Basic UI implementation with shadcn/ui
 - [x] Error handling and logging system
@@ -14,9 +14,9 @@ Build a web application that helps developers effectively process project specif
   - [x] Secure key storage in Supabase
   - [x] AI model configuration
   - [x] Connection testing
-- [x] Basic specification input interface
-  - [x] Rich text editor for specifications
-  - [x] File upload support
+- [ ] Basic specification input interface
+  - [x] Rich text editor
+  - [ ] File upload support
   - [x] Basic validation
 
 ### Phase 2: Specification Processing (Current Focus)
@@ -90,7 +90,7 @@ Build a web application that helps developers effectively process project specif
 - Export/import functionality
 
 ## Current Status
-- Phase 1 completed
+- Phase 1 partially completed (file upload support pending)
 - Working on Phase 2 specification processing
 - Sprint management system implemented
 - AI provider integration completed
