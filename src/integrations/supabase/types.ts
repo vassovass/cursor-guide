@@ -102,6 +102,33 @@ export type Database = {
         }
         Relationships: []
       }
+      api_key_history: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          id: string
+          notes: string | null
+          provider: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          notes?: string | null
+          provider: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: string
+          notes?: string | null
+          provider?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       api_model_configs: {
         Row: {
           api_key: string | null
@@ -111,6 +138,7 @@ export type Database = {
           last_verified_at: string | null
           model_id: string
           model_name: string
+          notes: string | null
           provider: string
           updated_at: string | null
           user_id: string
@@ -123,6 +151,7 @@ export type Database = {
           last_verified_at?: string | null
           model_id: string
           model_name: string
+          notes?: string | null
           provider?: string
           updated_at?: string | null
           user_id: string
@@ -135,6 +164,7 @@ export type Database = {
           last_verified_at?: string | null
           model_id?: string
           model_name?: string
+          notes?: string | null
           provider?: string
           updated_at?: string | null
           user_id?: string

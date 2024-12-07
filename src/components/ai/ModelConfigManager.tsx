@@ -3,16 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Key } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { ApiKeyInput } from "./ApiKeyInput";
 import { ProviderSelect } from "./ProviderSelect";
-import { Card, CardContent } from "@/components/ui/card";
+import { ApiKeyCard } from "./ApiKeyCard";
 
 interface ApiKeyConfig {
   id: string;
   provider: string;
   api_key: string;
   last_verified_at: string;
+  notes?: string | null;
 }
 
 export function ModelConfigManager() {
@@ -25,7 +26,24 @@ export function ModelConfigManager() {
   const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  console.log("[ModelConfigManager] Component initialized");
+  const fetchConfigs = async () => {
+    try {
+      const { data: configs, error: configsError } = await supabase
+        .from('api_model_configs')
+        .select('id, provider, api_key, last_verified_at, notes')
+        .order('created_at', { ascending: false });
+
+      if (configsError) throw configsError;
+      setExistingConfigs(configs || []);
+    } catch (error) {
+      console.error("[ModelConfigManager] Error fetching configs:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load API configurations",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,14 +57,7 @@ export function ModelConfigManager() {
         if (providersError) throw providersError;
         setAvailableProviders(providers || []);
 
-        // Fetch existing API key configs
-        const { data: configs, error: configsError } = await supabase
-          .from('api_model_configs')
-          .select('id, provider, api_key, last_verified_at')
-          .order('created_at', { ascending: false });
-
-        if (configsError) throw configsError;
-        setExistingConfigs(configs || []);
+        await fetchConfigs();
       } catch (error) {
         console.error("[ModelConfigManager] Error fetching data:", error);
         toast({
@@ -63,19 +74,11 @@ export function ModelConfigManager() {
   }, [toast]);
 
   const handleProviderChange = (value: string) => {
-    console.log("[ModelConfigManager] Selected provider changed:", value);
     setSelectedProvider(value);
   };
 
   const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("[ModelConfigManager] API key input changed");
     setApiKey(e.target.value);
-  };
-
-  const maskApiKey = (key: string) => {
-    if (!key) return '';
-    const lastFour = key.slice(-4);
-    return `••••••••${lastFour}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,13 +109,7 @@ export function ModelConfigManager() {
 
       if (configError) throw configError;
 
-      // Refresh the configs list
-      const { data: newConfigs } = await supabase
-        .from('api_model_configs')
-        .select('id, provider, api_key, last_verified_at')
-        .order('created_at', { ascending: false });
-
-      setExistingConfigs(newConfigs || []);
+      await fetchConfigs();
 
       toast({
         title: "Success",
@@ -185,20 +182,16 @@ export function ModelConfigManager() {
               <h3 className="text-lg font-semibold">Configured API Keys</h3>
               <div className="grid gap-4">
                 {existingConfigs.map((config) => (
-                  <Card key={config.id}>
-                    <CardContent className="flex items-center justify-between p-4">
-                      <div className="space-y-1">
-                        <p className="font-medium">{config.provider}</p>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Key className="mr-2 h-4 w-4" />
-                          {maskApiKey(config.api_key)}
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Last verified: {new Date(config.last_verified_at).toLocaleDateString()}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ApiKeyCard
+                    key={config.id}
+                    config={config}
+                    onDelete={(id) => {
+                      setExistingConfigs(configs => 
+                        configs.filter(c => c.id !== id)
+                      );
+                    }}
+                    onUpdate={fetchConfigs}
+                  />
                 ))}
               </div>
             </div>
