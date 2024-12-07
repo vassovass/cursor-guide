@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LogEntry } from "./LogEntry";
-import { logAIProviders } from "./AIProviderLogger";
-import { logSprintStatus } from "./SprintLogger";
 import type { Log } from "./types";
 
 interface LogViewerProps {
@@ -16,21 +14,11 @@ export function LogViewer({ isOpen, onClose }: LogViewerProps) {
 
   useEffect(() => {
     if (isOpen) {
-      const initLogs = async () => {
-        setLogs([{
-          level: 'INFO',
-          message: 'Starting debug session...',
-          timestamp: new Date().toISOString()
-        }]);
-
-        // Log sprint status first
-        await logSprintStatus(setLogs);
-        
-        // Then log AI providers
-        await logAIProviders(setLogs);
-      };
-
-      initLogs();
+      setLogs([{
+        level: 'INFO',
+        message: 'Starting debug session...',
+        timestamp: new Date().toISOString()
+      }]);
     } else {
       setLogs([]);
     }
