@@ -113,7 +113,7 @@ export function ModelConfigManager() {
     <div className="space-y-6 p-6 bg-card border rounded-lg">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold">AI Model Configuration</h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mb-8">
           Configure your AI model preferences and API keys
         </p>
       </div>
@@ -126,7 +126,7 @@ export function ModelConfigManager() {
               <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="openai:gpt-4">OpenAI GPT-4</SelectItem>
+              <SelectItem value="openai:gpt-4o">OpenAI GPT-4</SelectItem>
               <SelectItem value="openai:gpt-4-turbo">OpenAI GPT-4 Turbo</SelectItem>
               <SelectItem value="anthropic:claude-3-opus">Anthropic Claude 3 Opus</SelectItem>
               <SelectItem value="anthropic:claude-3-sonnet">Anthropic Claude 3 Sonnet</SelectItem>
