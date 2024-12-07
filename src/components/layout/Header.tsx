@@ -5,7 +5,7 @@ import { Sidebar } from "./Sidebar";
 import { Toggle } from "@/components/ui/toggle";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
-import { RoadmapMenu } from "./RoadmapMenu";
+import { LogViewer } from "@/components/debug/LogViewer";
 
 export function Header() {
   const [debugMode, setDebugMode] = useState(() => {
@@ -13,6 +13,7 @@ export function Header() {
     return saved ? JSON.parse(saved) : false;
   });
 
+  const [showLogs, setShowLogs] = useState(false);
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -44,7 +45,17 @@ export function Header() {
             placeholder="Search documentation..."
             className="w-64 px-4 py-2 rounded-md border border-gray-200 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400"
           />
-          {debugMode && <RoadmapMenu />}
+          {debugMode && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="gap-2"
+              onClick={() => setShowLogs(true)}
+            >
+              <ToggleRight className="w-4 h-4" />
+              View Logs
+            </Button>
+          )}
         </div>
         <div className="flex items-center gap-4">
           <Toggle
@@ -78,6 +89,10 @@ export function Header() {
           </Button>
         </div>
       </div>
+      <LogViewer 
+        isOpen={showLogs} 
+        onClose={() => setShowLogs(false)} 
+      />
     </header>
   );
 }
