@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { ApiKeyInput } from "./ApiKeyInput";
 import { ProviderSelect } from "./ProviderSelect";
 import { ApiKeyCard } from "./ApiKeyCard";
@@ -20,6 +20,7 @@ export function ModelConfigManager() {
   const [apiKey, setApiKey] = useState("");
   const [selectedProvider, setSelectedProvider] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [availableProviders, setAvailableProviders] = useState<any[]>([]);
   const [existingConfigs, setExistingConfigs] = useState<ApiKeyConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,31 +46,55 @@ export function ModelConfigManager() {
     }
   };
 
+  const syncProviders = async () => {
+    setIsSyncing(true);
+    try {
+      const response = await supabase.functions.invoke('sync-ai-providers');
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Success",
+        description: "AI providers synced successfully",
+      });
+
+      // Refresh providers list
+      await fetchData();
+    } catch (error) {
+      console.error("[ModelConfigManager] Error syncing providers:", error);
+      toast({
+        title: "Error",
+        description: "Failed to sync AI providers",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const { data: providers, error: providersError } = await supabase
+        .from('ai_providers')
+        .select('*')
+        .eq('is_available', true);
+
+      if (providersError) throw providersError;
+      setAvailableProviders(providers || []);
+
+      await fetchConfigs();
+    } catch (error) {
+      console.error("[ModelConfigManager] Error fetching data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load configuration data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch providers
-        const { data: providers, error: providersError } = await supabase
-          .from('ai_providers')
-          .select('*')
-          .eq('is_available', true);
-
-        if (providersError) throw providersError;
-        setAvailableProviders(providers || []);
-
-        await fetchConfigs();
-      } catch (error) {
-        console.error("[ModelConfigManager] Error fetching data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load configuration data",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, [toast]);
 
@@ -140,11 +165,31 @@ export function ModelConfigManager() {
 
   return (
     <div className="space-y-6 p-6 bg-card border rounded-lg">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold">AI Provider Configuration</h2>
-        <p className="text-muted-foreground mb-8">
-          Configure your AI provider API keys
-        </p>
+      <div className="flex justify-between items-center">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold">AI Provider Configuration</h2>
+          <p className="text-muted-foreground">
+            Configure your AI provider API keys
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={syncProviders}
+          disabled={isSyncing}
+        >
+          {isSyncing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Syncing...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Sync Providers
+            </>
+          )}
+        </Button>
       </div>
 
       {isLoading ? (
