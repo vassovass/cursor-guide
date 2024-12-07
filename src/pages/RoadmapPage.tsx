@@ -27,10 +27,20 @@ export function RoadmapPage() {
 
   useEffect(() => {
     // Fetch and parse ROADMAP.md content
+    console.log('Fetching ROADMAP.md content...');
     fetch('/ROADMAP.md')
-      .then(response => response.text())
-      .then(content => setRoadmapContent(content))
-      .catch(error => console.error('Error loading roadmap:', error));
+      .then(response => {
+        console.log('ROADMAP.md response:', response.status);
+        return response.text();
+      })
+      .then(content => {
+        console.log('ROADMAP.md content length:', content.length);
+        console.log('First 100 characters:', content.substring(0, 100));
+        setRoadmapContent(content);
+      })
+      .catch(error => {
+        console.error('Error loading roadmap:', error);
+      });
   }, []);
 
   useEffect(() => {
@@ -102,9 +112,11 @@ gantt
         [&_input[type='checkbox']]:focus:ring-2 [&_input[type='checkbox']]:focus:ring-blue-500
         " 
         data-testid="roadmap-content">
-        <ReactMarkdown>
-          {roadmapContent}
-        </ReactMarkdown>
+        {roadmapContent && (
+          <ReactMarkdown>
+            {roadmapContent}
+          </ReactMarkdown>
+        )}
       </div>
 
       <div className="border rounded-lg p-6 bg-card text-card-foreground" data-testid="roadmap-chart-container">
