@@ -111,6 +111,39 @@ export type Database = {
         }
         Relationships: []
       }
+      project_specifications: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          parsed_data: Json | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          parsed_data?: Json | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          parsed_data?: Json | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       sprint_tasks: {
         Row: {
           created_at: string | null
