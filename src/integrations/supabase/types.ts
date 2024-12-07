@@ -39,6 +39,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_providers: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_available: boolean | null
+          provider_id: string
+          provider_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          provider_id: string
+          provider_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          provider_id?: string
+          provider_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_suite_models: {
         Row: {
           capabilities: Json | null
@@ -84,6 +111,7 @@ export type Database = {
           last_verified_at: string | null
           model_id: string
           model_name: string
+          provider: string
           updated_at: string | null
           user_id: string
         }
@@ -95,6 +123,7 @@ export type Database = {
           last_verified_at?: string | null
           model_id: string
           model_name: string
+          provider?: string
           updated_at?: string | null
           user_id: string
         }
@@ -106,6 +135,7 @@ export type Database = {
           last_verified_at?: string | null
           model_id?: string
           model_name?: string
+          provider?: string
           updated_at?: string | null
           user_id?: string
         }
