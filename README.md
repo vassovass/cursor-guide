@@ -1,184 +1,109 @@
-# CursorGuide - AI Development Assistant
+# CursorGuide
 
-## Overview
-CursorGuide is an AI-powered development assistant that helps create and maintain robust applications. This living document serves as our knowledge base and will evolve with the project.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.0-blue.svg)](https://reactjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Latest-green.svg)](https://supabase.io/)
 
-## Core Architecture
+> An AI-powered development assistant that helps create and maintain robust applications with Cursor.ai
 
-### Technology Stack
+## 🚀 Features
+
+- 📝 Project specification processing and analysis
+- 🤖 AI-powered code generation and optimization
+- 📊 Sprint management and tracking
+- 🎨 Modern, responsive UI with dark mode support
+- 🔒 Secure authentication and data persistence
+- ⚡ Real-time updates and collaboration
+
+## 📋 Prerequisites
+
+- Node.js 18.x or later
+- npm or yarn package manager
+- Supabase account for backend services
+
+## 🛠️ Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/cursorguide.git
+cd cursorguide
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
+Edit `.env.local` with your Supabase credentials.
+
+4. Start the development server:
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+## 🏗️ Tech Stack
+
 - **Frontend**: React + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui
+- **UI Components**: shadcn/ui + Tailwind CSS
 - **State Management**: TanStack Query
 - **Backend**: Supabase
 - **Testing**: Vitest + Testing Library
 
-### Project Structure
-```
-src/
-├── components/        # Reusable UI components
-│   ├── ui/           # Base UI components
-│   ├── features/     # Feature-specific components
-│   └── layout/       # Layout components
-├── hooks/            # Custom React hooks
-├── pages/            # Route components
-├── utils/            # Utility functions
-├── types/            # TypeScript definitions
-├── styles/           # Global styles
-└── tests/            # Test files
-```
+## 📚 Documentation
 
-## Development Guidelines
+- [Getting Started](docs/getting-started.md)
+- [Architecture Overview](docs/architecture.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [API Documentation](docs/api/README.md)
 
-### Code Style
+## 🧪 Testing
 
-#### Naming Conventions
-- **Components**: PascalCase (e.g., `FeatureCard.tsx`)
-- **Files**: kebab-case (e.g., `api-utils.ts`)
-- **Functions**: camelCase (e.g., `handleSubmit`)
-- **Constants**: UPPER_SNAKE_CASE
-- **Types/Interfaces**: PascalCase with prefix (e.g., `TProps`, `IUser`)
-- **CSS Classes**: kebab-case
-
-#### Component Structure
-```typescript
-// Import statements
-import { useState } from 'react';
-import type { ComponentProps } from './types';
-
-// Component interface
-interface Props extends ComponentProps {
-  title: string;
-  onAction?: () => void;
-}
-
-// Component definition
-export function FeatureComponent({ title, onAction }: Props) {
-  // State hooks
-  const [state, setState] = useState();
-
-  // Event handlers
-  const handleClick = () => {
-    // Implementation
-  };
-
-  // Render
-  return (
-    // JSX
-  );
-}
+Run the test suite:
+```bash
+npm test
+# or
+yarn test
 ```
 
-### State Management
-- Use **TanStack Query** for server state
-- Use **Context** for global UI state
-- Keep component state local when possible
-- Consider performance implications of context consumers
+## 🤝 Contributing
 
-### Styling Guidelines
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-#### Design Tokens
-```typescript
-const tokens = {
-  colors: {
-    primary: '#9b87f5',
-    secondary: '#7E69AB',
-    accent: '#6E59A5',
-    // Add colors as needed
-  },
-  spacing: {
-    xs: '0.25rem',
-    sm: '0.5rem',
-    md: '1rem',
-    // Add spacing as needed
-  },
-  // Add other tokens as needed
-};
-```
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-#### Component Styling
-- Use Tailwind classes for styling
-- Follow mobile-first approach
-- Maintain dark mode compatibility
-- Use CSS variables for theme values
+## 📄 License
 
-### Best Practices
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-#### Performance
-- Implement code splitting
-- Lazy load routes and heavy components
-- Optimize images and assets
-- Use proper memoization
-- Monitor bundle size
+## 🙏 Acknowledgments
 
-#### Accessibility
-- Follow WCAG 2.1 AA guidelines
-- Support keyboard navigation
-- Implement proper ARIA attributes
-- Ensure sufficient color contrast
-- Test with screen readers
+- [Cursor.ai](https://cursor.ai) for the AI capabilities
+- [shadcn/ui](https://ui.shadcn.com) for the beautiful components
+- [Supabase](https://supabase.io) for the backend infrastructure
 
-#### Error Handling
-- Use error boundaries
-- Implement proper error states
-- Log errors appropriately
-- Show user-friendly messages
-- Use toast notifications
+## 📞 Support
 
-### Testing Strategy
-- Unit test utilities
-- Integration test components
-- E2E test critical paths
-- Mock external dependencies
-- Maintain test coverage goals
-
-## Feature Implementation
-
-### Documentation
-Each feature should include:
-- Technical documentation
-- Usage examples
-- Props/API documentation
-- Testing guidelines
-- Performance considerations
-
-### AI Integration
-- Model configuration
-- Response handling
-- Error recovery
-- Performance optimization
-- Usage tracking
-
-## Deployment & CI/CD
-- Environment configuration
-- Build optimization
-- Deployment verification
-- Monitoring setup
-- Performance tracking
-
-## Security
-- Input validation
-- Authentication flows
-- API security
-- Data protection
-- Regular audits
-
-## Contributing
-- PR guidelines
-- Code review process
-- Testing requirements
-- Documentation updates
-- Version control practices
-
-## Resources
-- [Project Documentation](docs/)
-- [API Reference](api/)
-- [Style Guide](style-guide/)
-- [Testing Guide](testing/)
-- [Security Guidelines](security/)
-
-## Versioning
-This document follows [Semantic Versioning](https://semver.org/). All notable changes are documented in the [CHANGELOG.md](CHANGELOG.md).
+For support, please:
+1. Check our [Documentation](docs/README.md)
+2. Search [Issues](https://github.com/yourusername/cursorguide/issues)
+3. Create a new issue if needed
 
 ---
 
-**Note**: This knowledge base is a living document. As the project evolves, update this guide to reflect current best practices and requirements.
+<div align="center">
+  Made with ❤️ by the CursorGuide Team
+</div>
