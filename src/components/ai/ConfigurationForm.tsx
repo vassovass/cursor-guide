@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { ApiKeyInput } from "./ApiKeyInput";
 import { ProviderSelect } from "./ProviderSelect";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ConfigurationFormProps {
   onConfigSaved: () => void;

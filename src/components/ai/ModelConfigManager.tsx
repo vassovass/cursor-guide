@@ -122,10 +122,8 @@ export function ModelConfigManager() {
                   <ApiKeyCard
                     key={config.id}
                     config={config}
-                    onDelete={(id) => {
-                      setExistingConfigs(configs => 
-                        configs.filter(c => c.id !== id)
-                      );
+                    onDelete={async (id) => {
+                      await fetchConfigs();
                     }}
                     onUpdate={fetchConfigs}
                   />
