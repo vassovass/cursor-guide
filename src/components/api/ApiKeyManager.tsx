@@ -17,9 +17,17 @@ export function ApiKeyManager() {
     setIsSubmitting(true);
 
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('You must be logged in to save an API key');
+      }
+
       const { error } = await supabase
         .from('api_model_configs')
         .upsert({
+          user_id: user.id,
           model_id: 'default-model',
           model_name: 'Default Model',
           api_key: apiKey,
@@ -39,7 +47,7 @@ export function ApiKeyManager() {
       console.error('Error saving API key:', error);
       toast({
         title: "Error",
-        description: "Failed to save API key. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save API key. Please try again.",
         variant: "destructive",
       });
     } finally {
