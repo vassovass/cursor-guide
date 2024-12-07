@@ -17,16 +17,20 @@ export function ModelConfigManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    console.log('Starting API key configuration process...', { selectedModel });
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        console.error('Authentication error: No user found');
         throw new Error('You must be logged in to configure AI models');
       }
 
+      console.log('User authenticated, proceeding with configuration...');
+
       // Save API key configuration
-      const { error } = await supabase
+      const { error: configError } = await supabase
         .from('api_model_configs')
         .upsert({
           user_id: user.id,
@@ -36,14 +40,24 @@ export function ModelConfigManager() {
           last_verified_at: new Date().toISOString(),
         });
 
-      if (error) throw error;
+      if (configError) {
+        console.error('Database error:', configError);
+        throw configError;
+      }
+
+      console.log('API key saved successfully, testing connection...');
 
       // Test connection with the API
-      const { error: testError } = await supabase.functions.invoke('test-ai-connection', {
+      const { data: testResult, error: testError } = await supabase.functions.invoke('test-ai-connection', {
         body: { modelId: selectedModel }
       });
 
-      if (testError) throw testError;
+      if (testError) {
+        console.error('Connection test failed:', testError);
+        throw testError;
+      }
+
+      console.log('Connection test successful:', testResult);
 
       toast({
         title: "Success",
@@ -54,7 +68,7 @@ export function ModelConfigManager() {
       setApiKey('');
       setSelectedModel('');
     } catch (error) {
-      console.error('Error saving model configuration:', error);
+      console.error('Error in model configuration:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to save configuration",
@@ -62,6 +76,7 @@ export function ModelConfigManager() {
       });
     } finally {
       setIsSubmitting(false);
+      console.log('Configuration process completed');
     }
   };
 
@@ -85,8 +100,8 @@ export function ModelConfigManager() {
                 <SelectValue placeholder="Select a model" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="openai:gpt-4o">OpenAI GPT-4 Optimized</SelectItem>
-                <SelectItem value="openai:gpt-4o-mini">OpenAI GPT-4 Mini</SelectItem>
+                <SelectItem value="openai:gpt-4">OpenAI GPT-4</SelectItem>
+                <SelectItem value="openai:gpt-4-turbo">OpenAI GPT-4 Turbo</SelectItem>
                 <SelectItem value="anthropic:claude-3-opus">Anthropic Claude 3 Opus</SelectItem>
                 <SelectItem value="anthropic:claude-3-sonnet">Anthropic Claude 3 Sonnet</SelectItem>
               </SelectContent>
