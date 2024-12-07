@@ -21,6 +21,7 @@ interface ApiKeyCardProps {
 export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [notes, setNotes] = useState(config.notes || '');
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   const maskApiKey = (key: string) => {
@@ -31,6 +32,9 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
 
   const handleDelete = async () => {
     try {
+      setIsDeleting(true);
+      console.log("[ApiKeyCard] Starting deletion process for key:", config.id);
+
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -46,7 +50,10 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
           notes: config.notes,
         });
 
-      if (historyError) throw historyError;
+      if (historyError) {
+        console.error("[ApiKeyCard] Error creating history record:", historyError);
+        throw historyError;
+      }
 
       // Then delete the config
       const { error: deleteError } = await supabase
@@ -54,8 +61,12 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
         .delete()
         .eq('id', config.id);
 
-      if (deleteError) throw deleteError;
+      if (deleteError) {
+        console.error("[ApiKeyCard] Error deleting config:", deleteError);
+        throw deleteError;
+      }
 
+      console.log("[ApiKeyCard] Successfully deleted key:", config.id);
       onDelete(config.id);
       toast({
         title: "Success",
@@ -65,21 +76,28 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
       console.error("[ApiKeyCard] Error deleting API key:", error);
       toast({
         title: "Error",
-        description: "Failed to delete API key",
+        description: error instanceof Error ? error.message : "Failed to delete API key",
         variant: "destructive",
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const handleSaveNotes = async () => {
     try {
+      console.log("[ApiKeyCard] Updating notes for key:", config.id);
       const { error } = await supabase
         .from('api_model_configs')
         .update({ notes })
         .eq('id', config.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("[ApiKeyCard] Error updating notes:", error);
+        throw error;
+      }
 
+      console.log("[ApiKeyCard] Successfully updated notes for key:", config.id);
       setIsEditing(false);
       onUpdate();
       toast({
@@ -90,7 +108,7 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
       console.error("[ApiKeyCard] Error updating notes:", error);
       toast({
         title: "Error",
-        description: "Failed to update notes",
+        description: error instanceof Error ? error.message : "Failed to update notes",
         variant: "destructive",
       });
     }
@@ -112,6 +130,7 @@ export function ApiKeyCard({ config, onDelete, onUpdate }: ApiKeyCardProps) {
               variant="ghost"
               size="icon"
               onClick={handleDelete}
+              disabled={isDeleting}
               className="h-8 w-8"
             >
               <Trash2 className="h-4 w-4" />
