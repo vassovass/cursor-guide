@@ -77,7 +77,31 @@ gantt
         </h1>
       </div>
 
-      <div className="prose prose-headings:text-white prose-h1:text-3xl prose-h1:font-semibold prose-h2:text-2xl prose-h2:font-semibold prose-h3:text-xl prose-h3:font-semibold prose-p:text-gray-300 prose-strong:text-white prose-em:text-gray-300 prose-code:text-blue-300 prose-pre:bg-gray-800 prose-pre:text-gray-300 prose-ul:text-gray-300 prose-li:text-gray-300 prose-blockquote:text-gray-300 prose-blockquote:border-l-blue-500 dark:prose-invert max-w-none" data-testid="roadmap-content">
+      <div className="prose dark:prose-invert max-w-none 
+        prose-h1:text-[2em] prose-h1:font-semibold prose-h1:border-b prose-h1:border-[#30363d] prose-h1:pb-[0.3em] prose-h1:mb-[1em]
+        prose-h2:text-[1.5em] prose-h2:font-semibold prose-h2:border-b prose-h2:border-[#30363d] prose-h2:pb-[0.3em] prose-h2:mb-[1em]
+        prose-h3:text-[1.25em] prose-h3:font-semibold
+        prose-h4:text-[1em] prose-h4:font-semibold
+        prose-h5:text-[0.875em] prose-h5:font-semibold
+        prose-h6:text-[0.85em] prose-h6:font-semibold
+        prose-p:text-base prose-p:leading-[1.75] prose-p:mb-4
+        prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+        prose-strong:font-semibold
+        prose-code:bg-[#30363d] prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:text-sm
+        prose-pre:bg-[#30363d] prose-pre:rounded-md prose-pre:p-4
+        prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4
+        prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-4
+        prose-li:mb-1
+        prose-blockquote:border-l-4 prose-blockquote:border-[#30363d] prose-blockquote:pl-4 prose-blockquote:italic
+        prose-hr:border-[#30363d]
+        [&_input[type='checkbox']]:appearance-none [&_input[type='checkbox']]:bg-transparent 
+        [&_input[type='checkbox']]:border [&_input[type='checkbox']]:border-[#30363d] 
+        [&_input[type='checkbox']]:rounded [&_input[type='checkbox']]:w-4 [&_input[type='checkbox']]:h-4 
+        [&_input[type='checkbox']]:mr-2 [&_input[type='checkbox']]:align-middle
+        [&_input[type='checkbox']]:checked:bg-blue-500 [&_input[type='checkbox']]:checked:border-blue-500
+        [&_input[type='checkbox']]:focus:ring-2 [&_input[type='checkbox']]:focus:ring-blue-500
+        " 
+        data-testid="roadmap-content">
         <ReactMarkdown>
           {roadmapContent}
         </ReactMarkdown>
