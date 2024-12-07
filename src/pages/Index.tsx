@@ -12,58 +12,6 @@ export function Index() {
   const { toast } = useToast();
   const { processWithAI, isProcessing } = useAiProcessing();
 
-  const initializeFirstSprint = async (analysisResult: any) => {
-    try {
-      // Create first sprint
-      const { data: sprint, error: sprintError } = await supabase
-        .from("sprints")
-        .insert({
-          sprint_number: 1,
-          title: "Initial Setup and Configuration",
-          status: "active",
-          start_date: new Date().toISOString(),
-          end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks duration
-        })
-        .select()
-        .single();
-
-      if (sprintError) throw sprintError;
-
-      // Create initial tasks based on analysis
-      const initialTasks = [
-        {
-          sprint_id: sprint.id,
-          title: "Review and validate project specification",
-          status: "in_progress",
-          priority: 1,
-        },
-        {
-          sprint_id: sprint.id,
-          title: "Set up development environment",
-          status: "pending",
-          priority: 2,
-        },
-        {
-          sprint_id: sprint.id,
-          title: "Configure Cursor.ai integration",
-          status: "pending",
-          priority: 3,
-        },
-      ];
-
-      const { error: tasksError } = await supabase
-        .from("sprint_tasks")
-        .insert(initialTasks);
-
-      if (tasksError) throw tasksError;
-
-      console.log("Sprint and tasks initialized successfully");
-    } catch (error) {
-      console.error("Error initializing sprint:", error);
-      throw error;
-    }
-  };
-
   const handleSpecificationSubmit = async () => {
     if (!specification.trim()) {
       toast({
@@ -102,17 +50,9 @@ export function Index() {
 
       if (error) throw error;
 
-      // Initialize the first sprint
-      await initializeFirstSprint(analysisResult);
-
       // Store in localStorage for immediate use
       localStorage.setItem("projectSpecification", specification);
       localStorage.setItem("aiAnalysis", JSON.stringify(analysisResult));
-
-      toast({
-        title: "Success",
-        description: "Project initialized successfully. Redirecting to setup page...",
-      });
 
       // Navigate to setup page
       navigate("/setup");
@@ -155,7 +95,7 @@ export function Index() {
         <div className="text-sm text-muted-foreground text-center">
           <p>
             Your specification will be analyzed by AI to help set up your project
-            structure and initialize your first sprint
+            structure
           </p>
         </div>
       </div>
