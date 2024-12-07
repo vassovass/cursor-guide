@@ -4,13 +4,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAiProcessing } from "@/hooks/use-ai-processing";
+import { Loader2 } from "lucide-react";
 
 export function Index() {
   const [specification, setSpecification] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { processWithAI, isProcessing } = useAiProcessing();
 
-  const handleSpecificationSubmit = () => {
+  const handleSpecificationSubmit = async () => {
     if (!specification.trim()) {
       toast({
         title: "Specification Required",
@@ -20,19 +23,33 @@ export function Index() {
       return;
     }
 
-    // Log the specification for debugging
-    console.log("Processing specification:", specification);
+    try {
+      // Process specification with AI Suite
+      const result = await processWithAI('openai:gpt-4o-mini', specification, 'analyze_specification');
+      
+      if (result) {
+        // Store both original specification and AI analysis
+        localStorage.setItem("project_specification", specification);
+        localStorage.setItem("ai_analysis", JSON.stringify(result));
+        
+        console.log("AI Analysis:", result);
+        
+        toast({
+          title: "Specification Processed",
+          description: "Your project specification has been analyzed. Proceeding to setup.",
+        });
 
-    // Store specification in localStorage for now (MVP)
-    localStorage.setItem("project_specification", specification);
-    
-    toast({
-      title: "Specification Received",
-      description: "Your project specification has been processed. Proceeding to setup.",
-    });
-
-    // Navigate to setup page
-    navigate("/setup");
+        // Navigate to setup page
+        navigate("/setup");
+      }
+    } catch (error) {
+      console.error("Error processing specification:", error);
+      toast({
+        title: "Processing Error",
+        description: "There was an error processing your specification. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -43,7 +60,7 @@ export function Index() {
             CursorGuide Project Specification
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Enter your project specification below. We'll help you break it down
+            Enter your project specification below. Our AI will help you break it down
             and create Cursor.ai-friendly implementation guidelines.
           </p>
         </div>
@@ -62,8 +79,10 @@ export function Index() {
                 onClick={handleSpecificationSubmit}
                 size="lg"
                 data-testid="submit-specification"
+                disabled={isProcessing}
               >
-                Process Specification
+                {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isProcessing ? "Processing..." : "Process Specification"}
               </Button>
             </div>
           </div>
@@ -71,7 +90,7 @@ export function Index() {
 
         <div className="text-sm text-muted-foreground text-center">
           <p>
-            Your specification will be analyzed and broken down into
+            Your specification will be analyzed by our AI and broken down into
             structured tasks following Cursor.ai best practices.
           </p>
         </div>
