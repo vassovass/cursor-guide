@@ -33,7 +33,7 @@
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 222.2 24% 12%;
     --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -84,16 +84,17 @@
     @apply text-muted-foreground;
   }
 
+  /* Updated dropdown and accordion styling */
   .menu-item {
     @apply px-3 py-2 text-sm font-medium rounded-md transition-colors
     data-[state=open]:bg-selection-background data-[state=open]:text-selection-foreground
-    hover:bg-selection-background/80 hover:text-selection-foreground
+    hover:bg-selection-background hover:text-selection-foreground
     focus:bg-selection-background focus:text-selection-foreground
     focus:outline-none;
   }
 
   .menu-content {
-    @apply bg-background border border-border shadow-lg rounded-md p-1
+    @apply bg-popover border border-border shadow-lg rounded-md p-1
     data-[state=open]:animate-in data-[state=closed]:animate-out
     data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
     data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95;
@@ -104,6 +105,6 @@
   }
 
   .unselected-item {
-    @apply bg-background/80 text-foreground hover:bg-selection-background/60;
+    @apply bg-popover text-foreground hover:bg-selection-background/60;
   }
 }
