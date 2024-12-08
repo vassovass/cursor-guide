@@ -53,6 +53,7 @@ yarn dev
 - **Frontend**: React + TypeScript + Vite
 - **UI Components**: shadcn/ui + Tailwind CSS
 - **State Management**: TanStack Query
+- **Backend**: Supabase
 
 ## 📖 Documentation
 
@@ -70,6 +71,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Cursor.ai](https://cursor.ai) for the AI capabilities
 - [shadcn/ui](https://ui.shadcn.com) for the beautiful components
+- [Supabase](https://supabase.com) for the backend infrastructure
 
 ---
 
